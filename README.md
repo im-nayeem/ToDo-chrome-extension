@@ -4,13 +4,13 @@ The **My ToDo List Manager** Chrome Extension is a simple yet powerful tool for 
 
 ## Features
 
-- Add tasks: Enter a task in the input field and press Add Task button to add it to your to-do list. Each task is automatically timestamped with the date and time of creation.
-- Update tasks: Click on the Edit button under a task to edit it's content. The updated timestamp will be included accordingly.
-- Prioritize tasks: Higher priority tasks will appear at the top of the list and lower priority tasks will appear at bottom of the list.
-- Reorder tasks: Use the up and down arrows to move tasks within the list and change their order as needed.
-- Mark tasks as done: Click on Done button under a task to mark it as completed. A strikethrough effect will be applied to indicate its completion.
-- Undo tasks: If you marked a task as done by mistake, simply click on it again to undo the completion status.
-- Delete tasks: Remove tasks from your to-do list by clicking on the Delete button next to each item. The task will be deleted after confirmation for security.
+- **Add tasks:** Enter a task in the input field and press `Add Task` button to add it to your to-do list. Each task is automatically `timestamped` with the date and time of creation.
+- **Update tasks:** Click on the `Edit` button under a task to edit it's content. The updated `timestamp` will be included accordingly.
+- **Prioritize tasks:** Higher priority tasks will appear at the top of the list and lower priority tasks will appear at bottom of the list.
+- **Reorder tasks:** Use the up and down arrows to move tasks within the list and change their order as needed.
+- **Mark tasks as done:** Click on `Done` button under a task to mark it as completed. A strikethrough effect will be applied to indicate its completion.
+- **Undo tasks:** If you marked a task as done by mistake, simply click on it again to undo the completion status.
+- **Delete tasks:** Remove tasks from your to-do list by clicking on the `Delete` button next to each item. The task will be deleted after confirmation for security.
 
 ## Installation
 
