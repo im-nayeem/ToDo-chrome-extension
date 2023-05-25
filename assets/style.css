@@ -112,7 +112,8 @@ input,textarea{
     margin: 5px 0;
 }
 .task{
-    white-space: pre;
+    white-space: pre-wrap; 
+    word-wrap: break-word;
     width: 100%;
     margin-bottom: 5px;
 }

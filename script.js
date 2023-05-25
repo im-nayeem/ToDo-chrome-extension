@@ -71,11 +71,18 @@ const loadView = () => {
         taskBox.setAttribute("class", Element.isDone ? "task-box done" : "task-box");
 
 
+
         // the task text
-        const newTask = document.createElement("div");
-        newTask.setAttribute("class" , "task");
-        newTask.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + Element.task;
-        taskBox.appendChild(newTask);
+        const taskText = document.createElement("div");
+        taskText.setAttribute("class" , "task");
+        
+        // replace links with <a></a> tag
+        const linkRegex = /(https?:\/\/\S+)/gi;
+        const replacedText = Element.task.replace(linkRegex, '<a href="$1" target="__blank">$1</a>');
+
+        taskText.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + replacedText;
+        taskBox.appendChild(taskText);
+
 
 
         // task controller - for buttons and timestamp
