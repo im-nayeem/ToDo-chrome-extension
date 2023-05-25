@@ -25,12 +25,12 @@
         <div id="todo-input-form">
             
             <div class="task-form">
-                <input type="text" id="task-input-high" class="task-input" placeholder="Add High Priority Task">
+                <textarea id="task-input-high" class="task-input" rows="4" placeholder="Enter High Priority Task"></textarea>
                 <button class="add-task" id="add-task-btn-high">Add Task</button>
             </div>
     
             <div class="task-form">
-                <input type="text" id="task-input-low" class="task-input" placeholder="Add Low Priority Task">
+                <textarea id="task-input-low" class="task-input" rows="4" placeholder="Enter Low Priority Task"></textarea>
                 <button class="add-task" id="add-task-btn-low">Add Task</button>
             </div>
         
@@ -45,7 +45,7 @@
             </div>
             
             <div class="task-form task-form-modal">
-                <input type="text" id="task-input-updated" class="task-input" placeholder="Updated Task">
+                <textarea id="task-input-updated" class="task-input" rows="4" placeholder="Updated Task"></textarea>
                 <input type="hidden" id="hidden-index-updated">
                 <button class="add-task" id="update-task-btn">Update</button>
             </div>
@@ -64,6 +64,7 @@
 
 
 
+    <script src="handleTabKey.js"></script>
 
     <script src="script.js"></script>
 
