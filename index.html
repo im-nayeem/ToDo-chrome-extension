@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>My ToDo List</title>
+
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+    <div id="title">
+        <h2>My ToDo List</h2>
+        <h6>Developed By: Nayeem Hossain</h6>
+    </div>
+
+    <div id="main-container">
+
+        <!-- button to open task input form box -->
+        <button id="add-todo-btn">+</button>
+        
+        <!-- task input form box to add new task -->
+        <div id="todo-input-form">
+            
+            <div class="task-form">
+                <input type="text" id="task-input-high" class="task-input" placeholder="Add High Priority Task">
+                <button class="add-task" id="add-task-btn-high">Add Task</button>
+            </div>
+    
+            <div class="task-form">
+                <input type="text" id="task-input-low" class="task-input" placeholder="Add Low Priority Task">
+                <button class="add-task" id="add-task-btn-low">Add Task</button>
+            </div>
+        
+        </div>
+
+
+        <!-- to update a task -->
+        <div class="modal" id="modal">
+            
+            <div id="close-btn">
+                &times;
+            </div>
+            
+            <div class="task-form task-form-modal">
+                <input type="text" id="task-input-updated" class="task-input" placeholder="Updated Task">
+                <input type="hidden" id="hidden-index-updated">
+                <button class="add-task" id="update-task-btn">Update</button>
+            </div>
+      
+        </div>
+      
+
+
+        <!-- container to show all tasks -->
+        <div class="task-list" id="task-list">
+
+
+        </div>
+    </div>
+
+
+
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
