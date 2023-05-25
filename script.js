@@ -7,7 +7,8 @@ const addTaskBtnLow = document.getElementById('add-task-btn-low');
 
 const addToDoFormBtn = document.getElementById('add-todo-btn');
 
-
+    
+// Copyright (c) 2023 Nayeem Hossain
 
 taskList = []; 
     // array to store all task object containing task,timestamp and isDone
@@ -36,13 +37,13 @@ const getTimeStamp = () => {
     return formattedTimeStamp;
   }
   
-const swap = (i,j) => {
+const swap = (i, j) => {
 
     if(i<0 || j<0)
         return;
-    else if(i>=taskList.length || j>=taskList.length)
+    else if(i >= taskList.length || j >= taskList.length)
         return;
-    [taskList[i],taskList[j]] = [taskList[j],taskList[i]];
+    [taskList[i], taskList[j]] = [taskList[j], taskList[i]];
 }
 
 
