@@ -10,7 +10,7 @@
 
 #main-container{
     padding: 5px;
-    height: 700px;
+    min-height: 700px;
     width: 600px;
     box-shadow: 0 0 5px #878585b6;
     margin: 5px;
@@ -144,6 +144,9 @@ input,textarea{
 }
 .done button:hover{
     background-color: #03a8f4db;
+}
+.done a{
+    color: #51656e8d;
 }
 .del-task-btn{
     background-color: #d21414a9;
