@@ -75,12 +75,15 @@ const loadView = () => {
         // the task text
         const taskText = document.createElement("div");
         taskText.setAttribute("class" , "task");
-        
-        // replace links with <a></a> tag
-        const linkRegex = /(https?:\/\/\S+)/gi;
-        const replacedText = Element.task.replace(linkRegex, '<a href="$1" target="__blank">$1</a>');
 
-        taskText.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + replacedText;
+        // remove html tags 
+        const textWithoutTags = Element.task.replace(/<[^>]+>/g, "");
+        // replace **text** with <strong>text</strong>
+        const replacedText = textWithoutTags.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        // replace links with <a>link</a> 
+        const task = replacedText.replace(/(https?:\/\/\S+)/gi, '<a href="$1" target="__blank">$1</a>');
+
+        taskText.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + task;
         taskBox.appendChild(taskText);
 
 
@@ -265,13 +268,17 @@ closeBtn.addEventListener("click", () => {
 // add event listener to update task button in modal
 updateTaskBtn.addEventListener("click", () => {
 
-    const ind = document.getElementById('hidden-index-updated').value;
-    const updatedTask = document.getElementById('task-input-updated').value;
+    let x = prompt("Are you sure to edit? This can't be undone!\nWrite 1 to edit.");
+    if(x == 1)
+    {
+        const ind = document.getElementById('hidden-index-updated').value;
+        const updatedTask = document.getElementById('task-input-updated').value;
 
-    taskList[ind].task = updatedTask;
-    taskList[ind].updatedAt = getTimeStamp();
+        taskList[ind].task = updatedTask;
+        taskList[ind].updatedAt = getTimeStamp();
 
-    localStorage.setItem("todo", JSON.stringify(taskList));
+        localStorage.setItem("todo", JSON.stringify(taskList));
+    }
 
     modal.style.display = 'none';
     loadView();
