@@ -131,6 +131,7 @@ const loadView = () => {
         moveUpBtn.textContent = '↑';
         moveUpBtn.addEventListener("click", () => {
             swap(index,index-1);
+            localStorage.setItem("todo",JSON.stringify(taskList));
             loadView();
         });
         controllerBtns.appendChild(moveUpBtn);
@@ -142,6 +143,7 @@ const loadView = () => {
         moveDownBtn.textContent = '↓';
         moveDownBtn.addEventListener("click", () => {
             swap(index,index+1);
+            localStorage.setItem("todo",JSON.stringify(taskList));
             loadView();
         });
         controllerBtns.appendChild(moveDownBtn);

@@ -35,7 +35,7 @@ Once the My ToDo List Chrome Extension is installed, follow these instructions t
 
 ## License
 
-This project is licensed under the [MIT License]([https://opensource.org/licenses/MIT](https://github.com/im-nayeem/ToDo-chrome-extension/blob/main/LICENSE). Feel free to modify and distribute it according to the terms of the license.
+This project is licensed under the [MIT License](https://github.com/im-nayeem/ToDo-chrome-extension/blob/main/LICENSE). Feel free to modify and distribute it according to the terms of the license.
 
 ## Acknowledgements
 
