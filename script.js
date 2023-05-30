@@ -176,6 +176,7 @@ const loadView = () => {
             }
 
             modal.style.display = 'block';
+            modal.scrollIntoView();
             document.getElementById('task-input-updated').value = Element.task;
             document.getElementById('hidden-index-updated').value = index;
         
