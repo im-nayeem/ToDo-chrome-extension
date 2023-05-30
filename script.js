@@ -100,7 +100,7 @@ const loadView = () => {
 
         const updatedTimeStamp = document.createElement("span");
         updatedTimeStamp.setAttribute("class", Element.isDone ? "timestamp done" : "timestamp");
-        updatedTimeStamp.innerText = (Element.updatedAt == null) ? "" : (" (updated: " + Element.updatedAt + ')');
+        updatedTimeStamp.innerText = (Element.updatedAt == null) ? "" : ("[Updated: " + Element.updatedAt + "]");
 
 
         //controller button group
@@ -117,6 +117,7 @@ const loadView = () => {
         doneBtn.addEventListener("click",() => {
 
             taskList[index].isDone = !taskList[index].isDone;
+            taskList[index].completionTime = getTimeStamp();
             localStorage.setItem("todo", JSON.stringify(taskList));
             loadView();
         
@@ -130,6 +131,12 @@ const loadView = () => {
         moveUpBtn.className = 'move-up-btn';
         moveUpBtn.textContent = '↑';
         moveUpBtn.addEventListener("click", () => {
+            if(taskList[index].isDone)
+            {
+                alert("The task is completed. Completed task cannot be moved!");
+                return;
+            }
+
             swap(index,index-1);
             localStorage.setItem("todo",JSON.stringify(taskList));
             loadView();
@@ -142,6 +149,12 @@ const loadView = () => {
         moveDownBtn.className = 'move-down-btn';
         moveDownBtn.textContent = '↓';
         moveDownBtn.addEventListener("click", () => {
+            if(taskList[index].isDone)
+            {
+                alert("The task is completed. Completed task cannot be moved!");
+                return;
+            }
+
             swap(index,index+1);
             localStorage.setItem("todo",JSON.stringify(taskList));
             loadView();
@@ -191,13 +204,29 @@ const loadView = () => {
 
         // append childs - timestamp,controllerBtns->task-controller->taskbox
         taskController.appendChild(timeStamp);
-        taskController.appendChild(updatedTimeStamp);
+
+        if(!taskList[index].isDone)
+            taskController.appendChild(updatedTimeStamp);
+
+         // add completion time for tasks that are done
+         if(taskList[index].isDone)
+         {
+             const completionTime = document.createElement("div");
+             completionTime.setAttribute("class","timeStamp");
+             completionTime.innerText = "[Completed: " + taskList[index].completionTime + "]";
+             taskController.appendChild(completionTime);
+         }
+         
         taskController.appendChild(controllerBtns);
         taskBox.appendChild(taskController);
 
         // append everything to task-list div
         document.getElementById("task-list").appendChild(taskBox);
 
+
+
+        
+        
     })
 }
 
