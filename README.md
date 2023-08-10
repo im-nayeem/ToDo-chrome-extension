@@ -1,7 +1,6 @@
 # My ToDo List Chrome Extension
-
 The **My ToDo List Manager** Chrome Extension is a simple yet powerful tool for managing your daily tasks efficiently. With this extension, you can easily add, update, prioritize, reorder, mark as done, and delete tasks right from your browser.
-
+![image](https://github.com/im-nayeem/ToDo-chrome-extension/assets/77660934/81497860-10e1-4eec-bae5-aaa7c597696d)
 ## Features
 
 - **Add tasks:** Enter a task in the input field and press `Add Task` button to add it to your to-do list. Each task is automatically `timestamped` with the date and time of creation.
