@@ -12,7 +12,7 @@ const addToDoFormBtn = document.getElementById('add-todo-btn');
 
 taskList = []; 
     // array to store all task object containing task,timestamp and isDone
-
+updateTime = 0;
 
 /**================= Functions ====================== */
 
@@ -46,6 +46,11 @@ const swap = (i, j) => {
     [taskList[i], taskList[j]] = [taskList[j], taskList[i]];
 }
 
+const storeToDoLocally = () => {
+    localStorage.setItem("todo", JSON.stringify(taskList));
+    localStorage.setItem("updateTime", updateTime);
+    fetchAndLoadView();
+}
 
 /**------function to load the view-------*/
 const loadView = () => {
@@ -118,7 +123,8 @@ const loadView = () => {
 
             taskList[index].isDone = !taskList[index].isDone;
             taskList[index].completionTime = getTimeStamp();
-            localStorage.setItem("todo", JSON.stringify(taskList));
+            updateTime = Date.now();
+            storeToDoLocally();
             loadView();
         
         })
@@ -138,7 +144,8 @@ const loadView = () => {
             }
 
             swap(index,index-1);
-            localStorage.setItem("todo",JSON.stringify(taskList));
+            updateTime = Date.now();
+            storeToDoLocally();
             loadView();
         });
         controllerBtns.appendChild(moveUpBtn);
@@ -156,7 +163,8 @@ const loadView = () => {
             }
 
             swap(index,index+1);
-            localStorage.setItem("todo",JSON.stringify(taskList));
+            updateTime = Date.now();
+            storeToDoLocally();
             loadView();
         });
         controllerBtns.appendChild(moveDownBtn);
@@ -196,7 +204,8 @@ const loadView = () => {
             if(x == 1)
             {
                 taskList.splice(index, 1);
-                localStorage.setItem("todo", JSON.stringify(taskList));
+                updateTime = Date.now();
+                storeToDoLocally();
                 loadView();
             }
         })
@@ -223,10 +232,6 @@ const loadView = () => {
 
         // append everything to task-list div
         document.getElementById("task-list").appendChild(taskBox);
-
-
-
-        
         
     })
 }
@@ -234,7 +239,6 @@ const loadView = () => {
 
 
 // function to Toggle Task Input Form
-
 const toggleToDoForm = () => {
 
     const todoForm = document.getElementById('todo-input-form');
@@ -279,8 +283,8 @@ const addNewTask = (priority, task, isDone) => {
     else
         taskList.unshift( {task, isDone, timeStamp} );
 
-    localStorage.setItem("todo", JSON.stringify(taskList));
-
+    updateTime = Date.now();
+    storeToDoLocally();
     loadView();
 }
 
@@ -309,7 +313,8 @@ updateTaskBtn.addEventListener("click", () => {
         taskList[ind].task = updatedTask;
         taskList[ind].updatedAt = getTimeStamp();
 
-        localStorage.setItem("todo", JSON.stringify(taskList));
+        updateTime = Date.now();
+        storeToDoLocally();
     }
 
     modal.style.display = 'none';
@@ -335,15 +340,73 @@ addTaskBtnLow.addEventListener("click", () => {
     addNewTask("low", taskLow, false);
 
 })
-
-
+const isInternetConnected = (callback) => {
+    fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors'})
+        .then(response => {
+            callback(true);
+        })
+        .catch(error => {
+             callback(false);
+        });
+}
+const fetchAndLoadView = () => {
+    isInternetConnected((isConnected) => {
+        if(isConnected) {
+            let apiUrl = 'http://localhost:8080/api/get-todo.php';
+            fetch(apiUrl)
+            .then(response => response.json())
+                .then(data => {
+                if(data.status === 401) 
+                    window.open('http://localhost:8080/account/signin.php', '_blank');
+                else if(data.status === 200) 
+                {
+                    if(data.result !== null && data.result.updateTime > updateTime)
+                    {
+                        taskList = data.result.todo;
+                        updateTime = data.result.updateTime;
+                        storeToDoLocally();
+                        loadView();
+                    }
+                    else if(data.result == null || data.result.updateTime < updateTime)
+                    {
+                        fetch("http://localhost:8080/api/update-todo.php", {
+                            method: "POST",
+                            body: JSON.stringify({"updateTime":updateTime, "todo":taskList}),
+                            headers: {
+                                "Content-type": "application/json; charset=UTF-8"
+                            }
+                        })
+                        .then((response) => response.json())
+                            .then((json) => alert('Back-up completed!'))
+                                .catch(error => {
+                                    alert(error);
+                        });
+                    }
+                }
+                else{
+                    alert("Error while fetching data from server!");
+                    throw new Error(`API error! Status: ${data.status}`);
+                }
+            })
+            .catch(error => {
+                alert("Error while connecting with server!");
+                console.error('Fetch error:', error);
+            });
+        }else{
+            return;
+        }
+    });
+ }
 
 document.addEventListener("DOMContentLoaded", () => {
     const toDoList = JSON.parse(localStorage.getItem("todo"));
+    updateTime = localStorage.getItem("updateTime");
+    if(updateTime == null)
+        updateTime = 0;
     if(toDoList !== null)
         taskList = [...toDoList];
     loadView();
-
+    fetchAndLoadView();
 })
 
 /**------------------------------------------ */
