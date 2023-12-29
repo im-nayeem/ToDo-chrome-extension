@@ -10,7 +10,7 @@ The **My ToDo List Manager** Chrome Extension is a simple yet powerful tool for 
 - **Mark tasks as done:** Click on `Done` button under a task to mark it as completed. A strikethrough effect will be applied to indicate its completion.
 - **Undo tasks:** If you marked a task as done by mistake, simply click on it again to undo the completion status.
 - **Delete tasks:** Remove tasks from your to-do list by clicking on the `Delete` button next to each item. The task will be deleted after confirmation for security.
-- **Backup & sync data:** Backup & sync your data in different devices. This extension connect with `firebase firestore` through [backend API](https://github.com/im-nayeem/todo_api) for this purpose. 
+- **Backup & sync data:** Backup & sync your data in different devices. This extension gets connected with `firebase firestore` through [backend API](https://github.com/im-nayeem/todo_api) for this purpose. 
 
 ## Installation
 
