@@ -7,6 +7,7 @@ const addTaskBtnLow = document.getElementById('add-task-btn-low');
 
 const addToDoFormBtn = document.getElementById('add-todo-btn');
 
+const baseUrl = "http://localhost:8080/";
     
 // Copyright (c) 2023 Nayeem Hossain
 
@@ -352,12 +353,12 @@ const isInternetConnected = (callback) => {
 const fetchAndLoadView = () => {
     isInternetConnected((isConnected) => {
         if(isConnected) {
-            let apiUrl = 'http://localhost:8080/api/get-todo.php';
+            let apiUrl = baseUrl + 'api/get-todo.php';
             fetch(apiUrl)
             .then(response => response.json())
                 .then(data => {
                 if(data.status === 401) 
-                    window.open('http://localhost:8080/account/signin.php', '_blank');
+                    window.open(baseUrl + 'account/signin.php', '_blank');
                 else if(data.status === 200) 
                 {
                     if(data.result !== null && data.result.updateTime > updateTime)
@@ -369,7 +370,7 @@ const fetchAndLoadView = () => {
                     }
                     else if(data.result == null || data.result.updateTime < updateTime)
                     {
-                        fetch("http://localhost:8080/api/update-todo.php", {
+                        fetch(baseUrl + "api/update-todo.php", {
                             method: "POST",
                             body: JSON.stringify({"updateTime":updateTime, "todo":taskList}),
                             headers: {
