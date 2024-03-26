@@ -374,17 +374,20 @@ const fetchAndLoadView = () => {
                             method: "POST",
                             body: JSON.stringify({"updateTime":updateTime, "todo":taskList}),
                             headers: {
-                                "Content-type": "application/json; charset=UTF-8"
+                                "Content-type": "application/json"
                             }
                         })
                         .then((response) => response.json())
-                            .then((json) => alert('Back-up completed!'))
+                            .then((json) => {
+                                alert('Back-up completed!');
+                                console.log(json);
+                            })
                                 .catch(error => {
                                     alert(error);
                         });
                     }
                 }
-                else{
+                else {
                     alert("Error while fetching data from server!");
                     throw new Error(`API error! Status: ${data.status}`);
                 }
