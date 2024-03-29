@@ -59,7 +59,14 @@ input,textarea{
     width: 100%;
     resize: none;
 }
-
+.priority{
+    width: 70%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    margin: 5px auto 0 auto;
+    font-size: large;
+}
 .task-form{
     display: flex;
     margin: 7px 0;

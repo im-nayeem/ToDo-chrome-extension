@@ -26,15 +26,20 @@
         <div id="todo-input-form">
             
             <div class="task-form">
-                <textarea id="task-input-high" class="task-input" rows="4" placeholder="Enter High Priority Task"></textarea>
-                <button class="add-task" id="add-task-btn-high">Add Task</button>
+                <textarea id="task-input" class="task-input" rows="4" placeholder="Enter Task"></textarea>
+                <span class="priority">
+                    <label for="priority"><strong>Priority: </strong> </label> 
+                    <label> 
+                        <input type="radio" name="priority" 
+                            value="high"> High 
+                    </label> 
+                    <label>     
+                        <input type="radio" name="priority" 
+                            value="low">  Low 
+                    </label> 
+                </span>
+                <button class="add-task" id="add-task-btn">Add Task</button>
             </div>
-    
-            <div class="task-form">
-                <textarea id="task-input-low" class="task-input" rows="4" placeholder="Enter Low Priority Task"></textarea>
-                <button class="add-task" id="add-task-btn-low">Add Task</button>
-            </div>
-        
         </div>
 
         <!-- to update a task -->

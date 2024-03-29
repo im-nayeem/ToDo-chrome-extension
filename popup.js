@@ -1,8 +1,7 @@
 const modal = document.getElementById('modal');
 const closeBtn = document.getElementById('close-btn');
 const updateTaskBtn = document.getElementById('update-task-btn');
-const addTaskBtnHigh = document.getElementById('add-task-btn-high');
-const addTaskBtnLow = document.getElementById('add-task-btn-low');
+const addTaskBtn = document.getElementById('add-task-btn');
 const addToDoFormBtn = document.getElementById('add-todo-btn');
 
 // events
@@ -301,22 +300,23 @@ updateTaskBtn.addEventListener("click", (event) => {
 
 
 // button to add high priority task
-addTaskBtnHigh.addEventListener("click", (event) => {
-
-    const taskHigh = document.getElementById('task-input-high').value;
-    document.getElementById('task-input-high').value = "";
-    addNewTask("high",taskHigh,false);
+addTaskBtn.addEventListener("click", (event) => {
+    const task = document.getElementById('task-input').value;
+    var checkedRadio = document.querySelector('input[name="priority"]:checked');
+    if(checkedRadio)
+    {
+        const priority = checkedRadio.value;
+        document.getElementById('task-input').value = "";
+        checkedRadio.value = "";
+        addNewTask(priority, task, false);
+    }
+    else
+    {
+        alert("Priority must be selected!");
+    }
 
 })
 
-//button to add low priority task
-addTaskBtnLow.addEventListener("click", (event) => {
-
-    const taskLow = document.getElementById('task-input-low').value;
-    document.getElementById('task-input-low').value = "";
-    addNewTask("low", taskLow, false);
-
-})
 
 document.addEventListener("loadTodo", (event) => {
     loadView();
