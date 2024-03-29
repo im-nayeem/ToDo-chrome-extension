@@ -1,14 +1,14 @@
 const modal = document.getElementById('modal');
 const closeBtn = document.getElementById('close-btn');
 const updateTaskBtn = document.getElementById('update-task-btn');
-
 const addTaskBtnHigh = document.getElementById('add-task-btn-high');
 const addTaskBtnLow = document.getElementById('add-task-btn-low');
-
 const addToDoFormBtn = document.getElementById('add-todo-btn');
 
-const baseUrl = "http://localhost:8089/";
-    
+// events
+const todoLoadEvent = new Event("loadTodo");
+const updateTodoEvent = new Event("updateTodo");
+
 // Copyright (c) 2023 Nayeem Hossain
 
 taskList = []; 
@@ -18,28 +18,22 @@ updateTime = 0;
 /**================= Functions ====================== */
 
 const getTimeStamp = () => {
-    
     const currentDate = new Date();
-    
     const currentTime = currentDate.toLocaleString('en-BD', {
         hour: 'numeric',
         minute: 'numeric',
         hour12: true
     });
-    
     const formattedDate = currentDate.toLocaleDateString('en-BD', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
     });
-  
     const formattedTimeStamp = `${formattedDate} | ${currentTime}`;
-  
     return formattedTimeStamp;
   }
   
 const swap = (i, j) => {
-
     if(i<0 || j<0)
         return;
     else if(i >= taskList.length || j >= taskList.length)
@@ -47,17 +41,6 @@ const swap = (i, j) => {
     [taskList[i], taskList[j]] = [taskList[j], taskList[i]];
 }
 
-const storeToDoLocally = () => {
-    localStorage.setItem("todo", JSON.stringify(taskList));
-    localStorage.setItem("updateTime", updateTime);
-    chrome.storage.local.set({
-        todo: taskList,
-        updateTime: updateTime
-      }, () => {
-        console.log("Data saved to local storage");
-      });
-    fetchAndLoadView();
-}
 
 /**------function to load the view-------*/
 const loadView = () => {
@@ -78,11 +61,8 @@ const loadView = () => {
 
     taskList.forEach((Element,index) =>{
 
-
         const taskBox = document.createElement("div");
         taskBox.setAttribute("class", Element.isDone ? "task-box done" : "task-box");
-
-
 
         // the task text
         const taskText = document.createElement("div");
@@ -124,8 +104,7 @@ const loadView = () => {
             taskList[index].isDone = !taskList[index].isDone;
             taskList[index].completionTime = getTimeStamp();
             updateTime = Date.now();
-            storeToDoLocally();
-            loadView();
+            emitUpdateTodoEvent();
         })
         controllerBtns.appendChild(doneBtn);
 
@@ -142,8 +121,7 @@ const loadView = () => {
 
             swap(index,index-1);
             updateTime = Date.now();
-            storeToDoLocally();
-            loadView();
+            emitUpdateTodoEvent();
         });
         controllerBtns.appendChild(moveUpBtn);
 
@@ -160,8 +138,7 @@ const loadView = () => {
 
             swap(index,index+1);
             updateTime = Date.now();
-            storeToDoLocally();
-            loadView();
+            emitUpdateTodoEvent();
         });
         controllerBtns.appendChild(moveDownBtn);
 
@@ -198,8 +175,7 @@ const loadView = () => {
             {
                 taskList.splice(index, 1);
                 updateTime = Date.now();
-                storeToDoLocally();
-                loadView();
+                emitUpdateTodoEvent();
             }
         })
         controllerBtns.appendChild(delTaskBtn);
@@ -228,7 +204,6 @@ const loadView = () => {
     })
 }
 
-
 // function to Toggle Task Input Form
 const toggleToDoForm = () => {
 
@@ -248,7 +223,6 @@ const toggleToDoForm = () => {
         addToDoFormBtn.style.padding = "5px 13px"; 
     }
 }
-
 
 /**
  * function to Add New Task in todo list
@@ -275,44 +249,58 @@ const addNewTask = (priority, task, isDone) => {
         taskList.unshift( {task, isDone, timeStamp} );
 
     updateTime = Date.now();
-    storeToDoLocally();
-    loadView();
+    emitUpdateTodoEvent();
+}
+
+/**--------Event Emitter----------- */
+
+// emit event to load the view
+const emitTodoLoadEvent = (data) => {
+    taskList = data.taskList;
+    updateTime = data.updateTime;
+    document.dispatchEvent(todoLoadEvent);
+}
+
+// emit event to update todo (used only in popup.js)
+const emitUpdateTodoEvent = () => {
+    document.dispatchEvent(updateTodoEvent);
+}
+
+// emit event to sync todo with cloud
+const syncTodo = async() => {
+    chrome.runtime.sendMessage({ 
+        action: 'syncTodo', 
+    }, emitTodoLoadEvent); 
 }
 
 
-/**======== add Event Listeners to buttons and divs ======== */
+/**======== Event Listeners for buttons and divs ======== */
 
 addToDoFormBtn.addEventListener("click", toggleToDoForm);
 
-closeBtn.addEventListener("click", () => {
+closeBtn.addEventListener("click", (event) => {
     modal.style.display = 'none';
 })
 
 
 // add event listener to update task button in modal
-updateTaskBtn.addEventListener("click", () => {
-
+updateTaskBtn.addEventListener("click", (event) => {
     let x = prompt("Are you sure to edit? This can't be undone!\nWrite 1 to edit.");
     if(x == 1)
     {
         const ind = document.getElementById('hidden-index-updated').value;
         const updatedTask = document.getElementById('task-input-updated').value;
-
         taskList[ind].task = updatedTask;
         taskList[ind].updatedAt = getTimeStamp();
-
         updateTime = Date.now();
-        storeToDoLocally();
+        emitUpdateTodoEvent();
     }
-
     modal.style.display = 'none';
-    loadView();
-
 })
 
 
 // button to add high priority task
-addTaskBtnHigh.addEventListener("click", () => {
+addTaskBtnHigh.addEventListener("click", (event) => {
 
     const taskHigh = document.getElementById('task-input-high').value;
     document.getElementById('task-input-high').value = "";
@@ -321,7 +309,7 @@ addTaskBtnHigh.addEventListener("click", () => {
 })
 
 //button to add low priority task
-addTaskBtnLow.addEventListener("click", () => {
+addTaskBtnLow.addEventListener("click", (event) => {
 
     const taskLow = document.getElementById('task-input-low').value;
     document.getElementById('task-input-low').value = "";
@@ -329,21 +317,19 @@ addTaskBtnLow.addEventListener("click", () => {
 
 })
 
+document.addEventListener("loadTodo", (event) => {
+    loadView();
+});
 
-const fetchAndLoadView = () => {
-    chrome.runtime.sendMessage({ action: 'saveTasks', taskList: taskList, updateTime: updateTime }, loadView); 
- }
-
+document.addEventListener("updateTodo", (event) => {
+    chrome.runtime.sendMessage({ 
+        action: 'updateTodo', 
+        taskList: taskList, updateTime: updateTime 
+    }, emitTodoLoadEvent); 
+});
 
 document.addEventListener("DOMContentLoaded", () => {
-    const toDoList = JSON.parse(localStorage.getItem("todo"));
-    updateTime = localStorage.getItem("updateTime");
-    if(updateTime == null)
-        updateTime = 0;
-    if(toDoList !== null)
-        taskList = [...toDoList];
-    loadView();
-    fetchAndLoadView();
+    syncTodo();
 });
 
 /**------------------------------------------ */

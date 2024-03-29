@@ -12,4 +12,18 @@ const notify = (type, desc) => {
         }, 6000);
       });
 };
-export { notify, baseUrl};
+
+
+const isInternetConnected = (callback) => {
+  fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors'})
+      .then(response => {
+          callback(true);
+          console.log("Connected to internet...");
+      })
+      .catch(error => {
+          callback(false);
+          console.log("Can't connect to the internet...");
+      });
+}
+
+export { notify, baseUrl, isInternetConnected};

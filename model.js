@@ -4,8 +4,11 @@ const NotificationType = {
     ALERT: 'Alert'
 }; 
 
-const OperationType = {
-    LOAD_VIEW: 0
-};
 
-export {NotificationType, OperationType};
+const TaskPriority = {
+    HIGH: 0,
+    LOW: 1,
+    MEDIUM: 2
+}
+
+export {NotificationType, TaskPriority};
