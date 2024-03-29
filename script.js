@@ -50,6 +50,12 @@ const swap = (i, j) => {
 const storeToDoLocally = () => {
     localStorage.setItem("todo", JSON.stringify(taskList));
     localStorage.setItem("updateTime", updateTime);
+    chrome.storage.local.set({
+        todo: taskList,
+        updateTime: updateTime
+      }, () => {
+        console.log("Data saved to local storage");
+      });
     fetchAndLoadView();
 }
 
@@ -92,12 +98,9 @@ const loadView = () => {
         taskText.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + task;
         taskBox.appendChild(taskText);
 
-
-
         // task controller - for buttons and timestamp
         const taskController = document.createElement("div");
         taskController.setAttribute("class", "task-controller");
-
 
         // add the timestamp(the time of adding new task)
         const timeStamp = document.createElement("span");
@@ -108,12 +111,9 @@ const loadView = () => {
         updatedTimeStamp.setAttribute("class", Element.isDone ? "timestamp done" : "timestamp");
         updatedTimeStamp.innerText = (Element.updatedAt == null) ? "" : ("[Updated: " + Element.updatedAt + "]");
 
-
         //controller button group
         const controllerBtns = document.createElement("span");
         controllerBtns.setAttribute("class", "controller-btn");
-        
-
         
         //button to mark done or to undo task 
         const doneBtn = document.createElement('button');
@@ -121,17 +121,13 @@ const loadView = () => {
         doneBtn.textContent = Element.isDone ? "Undo" : "Done";
 
         doneBtn.addEventListener("click",() => {
-
             taskList[index].isDone = !taskList[index].isDone;
             taskList[index].completionTime = getTimeStamp();
             updateTime = Date.now();
             storeToDoLocally();
             loadView();
-        
         })
         controllerBtns.appendChild(doneBtn);
-
-
 
         //move up button
         const moveUpBtn = document.createElement('button');
@@ -151,7 +147,6 @@ const loadView = () => {
         });
         controllerBtns.appendChild(moveUpBtn);
 
-
         //move down button
         const moveDownBtn = document.createElement('button');
         moveDownBtn.className = 'move-down-btn';
@@ -169,7 +164,6 @@ const loadView = () => {
             loadView();
         });
         controllerBtns.appendChild(moveDownBtn);
-
 
         //button for editing task
         const editTaskBtn = document.createElement('button');
@@ -192,8 +186,6 @@ const loadView = () => {
         })
         controllerBtns.appendChild(editTaskBtn);
 
-
-
         //button for deleting task
         const delTaskBtn = document.createElement('button');
         delTaskBtn.className = 'del-task-btn';
@@ -211,7 +203,6 @@ const loadView = () => {
             }
         })
         controllerBtns.appendChild(delTaskBtn);
-
 
         // append childs - timestamp,controllerBtns->task-controller->taskbox
         taskController.appendChild(timeStamp);
@@ -236,7 +227,6 @@ const loadView = () => {
         
     })
 }
-
 
 
 // function to Toggle Task Input Form
@@ -290,9 +280,6 @@ const addNewTask = (priority, task, isDone) => {
 }
 
 
- 
-
-
 /**======== add Event Listeners to buttons and divs ======== */
 
 addToDoFormBtn.addEventListener("click", toggleToDoForm);
@@ -341,66 +328,12 @@ addTaskBtnLow.addEventListener("click", () => {
     addNewTask("low", taskLow, false);
 
 })
-const isInternetConnected = (callback) => {
-    fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors'})
-        .then(response => {
-            callback(true);
-        })
-        .catch(error => {
-             callback(false);
-        });
-}
+
+
 const fetchAndLoadView = () => {
-    isInternetConnected((isConnected) => {
-        if(isConnected) {
-            let apiUrl = baseUrl + 'api/get-todo.php';
-            fetch(apiUrl)
-            .then(response => response.json())
-                .then(data => {
-                if(data.status === 401) 
-                    window.open(baseUrl + 'account/signin.php', '_blank');
-                else if(data.status === 200) 
-                {
-                    if(data.result !== null && data.result.updateTime > updateTime)
-                    {
-                        taskList = data.result.todo;
-                        updateTime = data.result.updateTime;
-                        storeToDoLocally();
-                        loadView();
-                    }
-                    else if(data.result == null || data.result.updateTime < updateTime)
-                    {
-                        fetch(baseUrl + "api/update-todo.php", {
-                            method: "POST",
-                            body: JSON.stringify({"updateTime":updateTime, "todo":taskList}),
-                            headers: {
-                                "Content-type": "application/json"
-                            }
-                        })
-                        .then((response) => response.json())
-                            .then((json) => {
-                                alert('Back-up completed!');
-                                console.log(json);
-                            })
-                                .catch(error => {
-                                    alert(error);
-                        });
-                    }
-                }
-                else {
-                    alert("Error while fetching data from server!");
-                    throw new Error(`API error! Status: ${data.status}`);
-                }
-            })
-            .catch(error => {
-                alert("Error while connecting with server!");
-                console.error('Fetch error:', error);
-            });
-        }else{
-            return;
-        }
-    });
+    chrome.runtime.sendMessage({ action: 'saveTasks', taskList: taskList, updateTime: updateTime }, loadView); 
  }
+
 
 document.addEventListener("DOMContentLoaded", () => {
     const toDoList = JSON.parse(localStorage.getItem("todo"));
@@ -411,7 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
         taskList = [...toDoList];
     loadView();
     fetchAndLoadView();
-})
+});
 
 /**------------------------------------------ */
 
