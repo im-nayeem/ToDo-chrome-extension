@@ -256,6 +256,7 @@ const addNewTask = (priority, task, isDone) => {
 
 // emit event to load the view
 const emitTodoLoadEvent = (data) => {
+    console.log(data);
     taskList = data.taskList;
     updateTime = data.updateTime;
     document.dispatchEvent(todoLoadEvent);
@@ -329,7 +330,10 @@ document.addEventListener("updateTodo", (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-    syncTodo();
+    chrome.runtime.sendMessage({ 
+        action: 'loadData'
+    }, emitTodoLoadEvent); 
+    setTimeout(syncTodo, 2000);
 });
 
 /**------------------------------------------ */

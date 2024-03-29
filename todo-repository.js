@@ -1,27 +1,39 @@
-import {NotificationType} from "./model.js";
+import {NotificationType} from "./constants.js";
 import {notify, baseUrl, isInternetConnected} from "./utils.js";
 
-  const syncTodo = async (taskList, updateTime, emitEvent) => {
+  const syncTodo = (taskList, updateTime, emitEvent) => {
     isInternetConnected((isConnected) => {
         if(isConnected) {
             let apiUrl = baseUrl + 'api/get-todo.php';
             fetch(apiUrl)
             .then(response => response.json())
-                .then(data => {
+                .then(async (data) => {
                 if(data.status === 401) 
                 {
-                    console.log("Unauthorized!");
+                    console.log("Unauthorized! clearing localstorage");
                     chrome.tabs.create({ url: baseUrl + 'account/signin.php' });
                 }
                 else if(data.status === 200) 
                 {
+                    const resp = await fetch(baseUrl + 'api/get-user.php');
+                    const jsonResult = await resp.json();
+                    const userInfo = await jsonResult.result;
+                    const currentUser = await getUserInfo();
+                    if(currentUser == null || userInfo.email != currentUser.user.email)
+                    {
+                        await clearLocalStorage();
+                        await storeUserInfo(userInfo);
+                        taskList = [];
+                        updateTime = null;
+                    }
+
                     if(data.result !== null && data.result.updateTime > updateTime)
                     {
                         taskList = data.result.todo;
                         updateTime = data.result.updateTime;
+                        emitEvent({taskList: taskList, updateTime: updateTime});
                         storeToDoInLocalStorage(taskList, updateTime);
-                        emitEvent({taskList: message.taskList, updateTime: message.updateTime});
-                        console.log("Stored in localstorage. Synced with cloud...")
+                        console.log("Storing in localstorage. Syncing with cloud...")
                     }
                     else if(data.result == null || data.result.updateTime < updateTime)
                     {
@@ -70,7 +82,7 @@ import {notify, baseUrl, isInternetConnected} from "./utils.js";
       const response = await chrome.storage.local.get(['todo', 'updateTime']);
       const todos = response.todo;
       return {
-        taskList: todos ? todos : [],
+        todo: todos ? todos : [],
         updateTime: response.updateTime ? response.updateTime : 0,
       };
     } catch (error) {
@@ -85,7 +97,20 @@ import {notify, baseUrl, isInternetConnected} from "./utils.js";
   const storeToDoInLocalStorage = async (taskList, updateTime) => {
     await chrome.storage.local.set({todo: taskList});
     await chrome.storage.local.set({updateTime: updateTime});
+  }
 
+  const storeUserInfo = async(user) => {
+    await chrome.storage.local.set({user: user});
+  }
+
+  const getUserInfo = async() => {
+    return await chrome.storage.local.get(['user']);
+  }
+
+  const clearLocalStorage = async () => {
+    await chrome.storage.local.set({todo: []});
+    await chrome.storage.local.set({updateTime: null});
+    await chrome.storage.local.set({userInfo: null});
   }
 
   export { storeToDoInLocalStorage, getToDoFromLocalStorage, storeTodoInCloud, syncTodo };

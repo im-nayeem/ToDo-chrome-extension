@@ -14,8 +14,7 @@
  chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
     if (message.action === 'syncTodo') {
       getToDoFromLocalStorage().then( (data) => {
-        emitEvent({taskList: data.taskList, updateTime: data.updateTime});
-        syncTodo(data.taskList, data.updateTime, emitEvent);
+         syncTodo(data.taskList, data.updateTime, emitEvent);
       });
       return true;
     }
@@ -32,9 +31,9 @@
   });
 
   chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
-    if (message.action === 'loadTodo') {
-      getToDoFromLocalStorage().then( (data) => {
-        emitEvent({taskList: data.taskList, updateTime: data.updateTime});
+    if (message.action === 'loadData') {
+     getToDoFromLocalStorage().then((data) => {
+        emitEvent({taskList: data.todo, updateTime: data.updateTime});
       });
       return true;
     }

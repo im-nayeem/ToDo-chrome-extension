@@ -14,7 +14,7 @@ const notify = (type, desc) => {
 };
 
 
-const isInternetConnected = (callback) => {
+const isInternetConnected = async (callback) => {
   fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors'})
       .then(response => {
           callback(true);
