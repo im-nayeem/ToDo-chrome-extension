@@ -16,10 +16,10 @@ import {notify, baseUrl, isInternetConnected} from "./utils.js";
                 else if(data.status === 200) 
                 {
                     const resp = await fetch(baseUrl + 'api/get-user.php');
-                    const jsonResult = await resp.json();
-                    const userInfo = await jsonResult.result;
+                    const jsonResponse = await resp.json();
+                    const userInfo = await jsonResponse.result;
                     const currentUser = await getUserInfo();
-                    if(currentUser == null || userInfo.email != currentUser.user.email)
+                    if(Object.keys(currentUser).length === 0 && currentUser.constructor === Object || userInfo.email != currentUser.user.email)
                     {
                         await clearLocalStorage();
                         await storeUserInfo(userInfo);
