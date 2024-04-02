@@ -1,16 +1,5 @@
   import { getToDoFromLocalStorage, storeToDoInLocalStorage, syncTodo, storeTodoInCloud } from "./todo-repository.js";
 
-
-
-  // chrome.runtime.onInstalled.addListener(({ reason }) => {
-  //   if (reason === 'install') {
-  //     chrome.storage.local.set({
-  //       baseUrl: "http://localhost:8089/"
-  //     });
-  //   }
-  // });
-
-
  chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
     if (message.action === 'syncTodo') {
       getToDoFromLocalStorage().then( (data) => {
@@ -24,7 +13,6 @@
     if (message.action === 'updateTodo') {
       storeToDoInLocalStorage(message.taskList, message.updateTime).then( () => {
         emitEvent({taskList: message.taskList, updateTime: message.updateTime});
-        storeTodoInCloud(message.taskList, message.updateTime);
       });
       return true;
     }
@@ -38,3 +26,14 @@
       return true;
     }
   });
+
+chrome.runtime.onConnect.addListener(function(port) {
+  if (port.name === "backup") {
+      port.onDisconnect.addListener( () => {
+        console.log("Popup closed. Starting back-up...");
+        getToDoFromLocalStorage().then( (data) => {
+          storeTodoInCloud(data.taskList, data.updateTime);
+       });
+      });
+  }
+});

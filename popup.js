@@ -7,7 +7,7 @@ const addToDoFormBtn = document.getElementById('add-todo-btn');
 // events
 const todoLoadEvent = new Event("loadTodo");
 const updateTodoEvent = new Event("updateTodo");
-
+let shouldBackup = false;
 // Copyright (c) 2023 Nayeem Hossain
 
 taskList = []; 
@@ -263,6 +263,10 @@ const emitTodoLoadEvent = (data) => {
 
 // emit event to update todo (used only in popup.js)
 const emitUpdateTodoEvent = () => {
+    if(!shouldBackup) {
+        chrome.runtime.connect({ name: "backup" });
+        shouldBackup = true;
+    }
     document.dispatchEvent(updateTodoEvent);
 }
 
@@ -337,4 +341,3 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**------------------------------------------ */
-
