@@ -3,7 +3,7 @@
  chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
     if (message.action === 'syncTodo') {
       getToDoFromLocalStorage().then( (data) => {
-         syncTodo(data.taskList, data.updateTime, emitEvent);
+         syncTodo(data.todo, data.updateTime, emitEvent);
       });
       return true;
     }
@@ -32,7 +32,7 @@ chrome.runtime.onConnect.addListener(function(port) {
       port.onDisconnect.addListener( () => {
         console.log("Popup closed. Starting back-up...");
         getToDoFromLocalStorage().then( (data) => {
-          storeTodoInCloud(data.taskList, data.updateTime);
+          storeTodoInCloud(data.todo, data.updateTime);
        });
       });
   }

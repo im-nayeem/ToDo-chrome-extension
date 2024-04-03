@@ -10,17 +10,22 @@ import {notify, baseUrl, isInternetConnected} from "./utils.js";
                 .then(async (data) => {
                 if(data.status === 401) 
                 {
-                    console.log("Unauthorized! clearing localstorage");
+                    console.log("Unauthorized!");
                     chrome.tabs.create({ url: baseUrl + 'account/signin.php' });
                 }
                 else if(data.status === 200) 
                 {
+                    console.log("Fetched data from cloud: ");
+                    console.log(data.result);
+
                     const resp = await fetch(baseUrl + 'api/get-user.php');
                     const jsonResponse = await resp.json();
                     const userInfo = await jsonResponse.result;
                     const currentUser = await getUserInfo();
                     if(Object.keys(currentUser).length === 0 && currentUser.constructor === Object || userInfo.email != currentUser.user.email)
                     {
+                        console.log(`User didn't match! Clearing localstorage...\n Current user: ${currentUser.user.email} \n User logged in: ${userInfo.email}\n\n`);
+
                         await clearLocalStorage();
                         await storeUserInfo(userInfo);
                         taskList = [];
@@ -33,7 +38,7 @@ import {notify, baseUrl, isInternetConnected} from "./utils.js";
                         updateTime = data.result.updateTime;
                         emitEvent({taskList: taskList, updateTime: updateTime});
                         storeToDoInLocalStorage(taskList, updateTime);
-                        console.log("Storing in localstorage. Syncing with cloud...")
+                        console.log("Storing in localstorage. Syncing with cloud...");
                     }
                     else if(data.result == null || data.result.updateTime < updateTime)
                     {
@@ -81,6 +86,10 @@ import {notify, baseUrl, isInternetConnected} from "./utils.js";
     try {
       const response = await chrome.storage.local.get(['todo', 'updateTime']);
       const todos = response.todo;
+
+      console.log("Data retrieved from localstorage...");
+      console.log(todos);
+
       return {
         todo: todos ? todos : [],
         updateTime: response.updateTime ? response.updateTime : 0,
@@ -97,6 +106,7 @@ import {notify, baseUrl, isInternetConnected} from "./utils.js";
   const storeToDoInLocalStorage = async (taskList, updateTime) => {
     await chrome.storage.local.set({todo: taskList});
     await chrome.storage.local.set({updateTime: updateTime});
+    console.log("Stored in localstorage...");
   }
 
   const storeUserInfo = async(user) => {

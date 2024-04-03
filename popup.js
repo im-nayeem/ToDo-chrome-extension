@@ -255,6 +255,11 @@ const addNewTask = (priority, task, isDone) => {
 
 // emit event to load the view
 const emitTodoLoadEvent = (data) => {
+    if(data == undefined)
+    {
+        console.log("data not found to emit todoLoadEvent");
+        return;
+    }
     console.log(data);
     taskList = data.taskList;
     updateTime = data.updateTime;
@@ -334,6 +339,7 @@ document.addEventListener("updateTodo", (event) => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM content loaded...");
     chrome.runtime.sendMessage({ 
         action: 'loadData'
     }, emitTodoLoadEvent); 
