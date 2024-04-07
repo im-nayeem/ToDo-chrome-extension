@@ -58,7 +58,7 @@ const loadView = () => {
         return (a.isDone - b.isDone);
     })
 
-    taskList.forEach((Element,index) =>{
+    taskList.forEach((Element,index) => {
 
         const taskBox = document.createElement("div");
         taskBox.setAttribute("class", Element.isDone ? "task-box done" : "task-box");
@@ -73,10 +73,28 @@ const loadView = () => {
         const replacedText = textWithoutTags.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
         // replace links with <a>link</a> 
         const task = replacedText.replace(/(https?:\/\/\S+)/gi, '<a href="$1" target="__blank">$1</a>');
-
         taskText.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + task;
         taskBox.appendChild(taskText);
 
+        if(Element.labels) {
+            const labelsText = Element.labels;
+            const labelsDiv = document.createElement("div");
+            labelsDiv.setAttribute("class" , "labels");
+            labelsText.split(',').map(label => label.trim()).forEach(label => {
+                const labelDiv = document.createElement("div");
+                labelDiv.setAttribute("class", "label");
+                labelDiv.innerText = label;
+                labelDiv.addEventListener("click", () => {
+                    chrome.runtime.sendMessage({ 
+                        action: 'loadByLabel', 
+                        label: label 
+                    }, emitTodoLoadEvent); 
+                });
+                labelsDiv.appendChild(labelDiv);
+            });
+            taskBox.appendChild(labelsDiv);
+        }
+        
         // task controller - for buttons and timestamp
         const taskController = document.createElement("div");
         taskController.setAttribute("class", "task-controller");
@@ -230,7 +248,7 @@ const toggleToDoForm = () => {
  * @param {Boolean} isDone indicating if the task is done or undone
  * @returns if task is null
  */
-const addNewTask = (priority, task, isDone) => {
+const addNewTask = (priority, task, labels, isDone) => {
    
     toggleToDoForm();
 
@@ -243,9 +261,9 @@ const addNewTask = (priority, task, isDone) => {
     let timeStamp = getTimeStamp();
 
     if(priority === 'low')
-        taskList.push( {task, isDone, timeStamp} );
+        taskList.push( {task, isDone, labels, timeStamp} );
     else
-        taskList.unshift( {task, isDone, timeStamp} );
+        taskList.unshift( {task, isDone, labels, timeStamp} );
 
     updateTime = Date.now();
     emitUpdateTodoEvent();
@@ -311,13 +329,14 @@ updateTaskBtn.addEventListener("click", (event) => {
 // button to add high priority task
 addTaskBtn.addEventListener("click", (event) => {
     const task = document.getElementById('task-input').value;
+    const labels = document.getElementById('labelsInput').value.trim();
     var checkedRadio = document.querySelector('input[name="priority"]:checked');
     if(checkedRadio)
     {
         const priority = checkedRadio.value;
         document.getElementById('task-input').value = "";
         checkedRadio.value = "";
-        addNewTask(priority, task, false);
+        addNewTask(priority, task, labels, false);
     }
     else
     {

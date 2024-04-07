@@ -27,17 +27,25 @@
             
             <div class="task-form">
                 <textarea id="task-input" class="task-input" rows="4" placeholder="Enter Task"></textarea>
-                <span class="priority">
-                    <label for="priority"><strong>Priority: </strong> </label> 
-                    <label> 
-                        <input type="radio" name="priority" 
-                            value="high"> High 
-                    </label> 
-                    <label>     
-                        <input type="radio" name="priority" 
-                            value="low">  Low 
-                    </label> 
-                </span>
+                <div class="meta">
+                    <span class="priority">
+                        <label for="priority"><strong>Priority: </strong> </label> 
+                        <label> 
+                            <input type="radio" name="priority" 
+                                value="high"> High 
+                        </label> 
+                        <label>     
+                            <input type="radio" name="priority" 
+                                value="low">  Low 
+                        </label> 
+                    </span>
+                    <div class="labelKahini">
+                        <label for="labelsInput"><strong>Label: </strong></label>
+                        <div class="autocomplete">
+                            <input id="labelsInput" type="text" name="labelsInput" placeholder="Labels">
+                        </div>
+                    </div>
+                </div>
                 <button class="add-task" id="add-task-btn">Add Task</button>
             </div>
         </div>
@@ -63,6 +71,7 @@
     </div>
 
     <script src="popup.js"></script>
+    <script src="label.js"></script>
     <script src="handleTabKey.js"></script>
 </body>
 </html>
