@@ -335,6 +335,7 @@ addTaskBtn.addEventListener("click", (event) => {
     {
         const priority = checkedRadio.value;
         document.getElementById('task-input').value = "";
+        document.getElementById('labelsInput').value = "";
         checkedRadio.value = "";
         addNewTask(priority, task, labels, false);
     }
