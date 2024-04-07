@@ -6,13 +6,13 @@
 
 #title{
     text-align: center;
-    width:700px;
+    width:650px;
 }
 
 #main-container{
     padding: 5px;
-    min-height: 850px;
-    width: 750px;
+    min-height: 750px;
+    width: 650px;
     box-shadow: 0 0 5px #878585b6;
     margin: 5px;
 }
@@ -81,8 +81,8 @@ input[type="radio"]{
 
 .modal{
     position: absolute;
-    height: 850px;
-    width: 750px;
+    height: 750px;
+    width: 650px;
     top: 0;
     left: 0;
     background-color: rgba(240, 248, 255, 0.859);
@@ -222,7 +222,7 @@ input[type="radio"]{
   }
   #labelsInput {
     width: 101%;
-    margin: 5px 0;
+    margin: 5px 0 5px 3px;
   }
   .labelKahini {
     width: 60%;
