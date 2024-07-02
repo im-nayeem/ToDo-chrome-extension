@@ -69,12 +69,21 @@ const loadView = () => {
 
         // remove html tags 
         const textWithoutTags = Element.task.replace(/<[^>]+>/g, "");
+        
         // replace **text** with <strong>text</strong>
-        const replacedText = textWithoutTags.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+        const replacedText = textWithoutTags.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\[x\]/gi, `<input type='checkbox' checked>`).replace(/\[\]/g, `<input type='checkbox'>`);;
+        
         // replace links with <a>link</a> 
         const task = replacedText.replace(/(https?:\/\/\S+)/gi, '<a href="$1" target="__blank">$1</a>');
         taskText.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + task;
         taskBox.appendChild(taskText);
+
+        const checkBoxes = taskText.querySelectorAll("input[type='checkbox']");
+        checkBoxes.forEach((checkBox, checkBoxIndex) => {
+            checkBox.addEventListener("change", () => {
+                updateCheckbox(index, checkBoxIndex, checkBox.checked);
+            });
+        });
 
         if(Element.labels) {
             const labelsText = Element.labels;
@@ -220,6 +229,26 @@ const loadView = () => {
         
     })
 }
+
+
+const updateCheckbox = (taskIndex, checkBoxIndex, isChecked) => {
+    let task = taskList[taskIndex].task;
+    const regex = /\[\s*x?\s*\]\s/g;
+    let i = 0;
+    task = task.replace(regex, (match) => {
+        if (i++ === checkBoxIndex) {
+            return (isChecked ? "[x] " : "[] ");
+        } else {
+            return match;
+        }
+    });
+
+    taskList[taskIndex].task = task;
+    taskList[taskIndex].updatedAt = getTimeStamp();
+    updateTime = Date.now();
+    emitUpdateTodoEvent();
+}
+
 
 // function to Toggle Task Input Form
 const toggleToDoForm = () => {
