@@ -392,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chrome.runtime.sendMessage({ 
         action: 'loadData'
     }, emitTodoLoadEvent); 
-    setTimeout(syncTodo, 3000);
+    syncTodo();
 });
 
 /**------------------------------------------ */
