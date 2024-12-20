@@ -1,4 +1,8 @@
-  import { getToDoFromLocalStorage, storeToDoInLocalStorage, syncTodo, storeTodoInCloud } from "./todo-repository.js";
+  import { 
+    getToDoFromLocalStorage, 
+    storeToDoInLocalStorage, 
+    syncTodo, storeTodoInCloud 
+  } from "./repository/todo-repository.js";
 
  chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
     if (message.action === 'syncTodo') {

@@ -1,4 +1,5 @@
-import { getTimeStamp } from "./helpers/TimeStampHelper.js";
+import { getTimeStamp } from "./helpers/time-stamp-helper.js";
+import { swap } from "./helpers/array-helper.js";
 
 const modal = document.getElementById('modal');
 const closeBtn = document.getElementById('close-btn');
@@ -16,18 +17,8 @@ let taskList = [];
     // array to store all task object containing task,timestamp and isDone
 let updateTime = 0;
 
-// hello();
+
 /**================= Functions ====================== */
-
-  
-const swap = (i, j) => {
-    if(i<0 || j<0)
-        return;
-    else if(i >= taskList.length || j >= taskList.length)
-        return;
-    [taskList[i], taskList[j]] = [taskList[j], taskList[i]];
-}
-
 
 /**------function to load the view-------*/
 const loadView = () => {
@@ -133,7 +124,7 @@ const loadView = () => {
                 return;
             }
 
-            swap(index,index-1);
+            swap(taskList, index,index-1);
             updateTime = Date.now();
             emitUpdateTodoEvent();
         });
@@ -150,7 +141,7 @@ const loadView = () => {
                 return;
             }
 
-            swap(index,index+1);
+            swap(taskList, index,index+1);
             updateTime = Date.now();
             emitUpdateTodoEvent();
         });

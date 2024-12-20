@@ -1,5 +1,5 @@
-import { NotificationType } from "./constants.js";
-import { notify, baseUrl, isInternetConnected } from "./utils.js";
+import { NotificationType } from "../constants.js";
+import { notify, baseUrl, isInternetConnected } from "../utils.js";
 
 // Step 1: Open IndexedDB
 const openDB = () => {
