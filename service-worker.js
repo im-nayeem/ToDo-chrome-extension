@@ -52,7 +52,6 @@
       return true;
     }
   });
-
   chrome.runtime.onConnect.addListener(function(port) {
     if (port.name === "backup") {
       port.onDisconnect.addListener( () => {
@@ -63,3 +62,24 @@
       });
     }
   });
+
+  chrome.runtime.onConnectExternal.addListener(function (port) {
+    console.log(`Connected by external source: ${port.name}`);
+
+    if (port.name === 'backup') {
+        // Listen for disconnection
+        port.onDisconnect.addListener(() => {
+            console.log('Disconnected from external source.');
+            // You can trigger the backup logic here
+        });
+
+        // Optional: Handle messages from the external source (website)
+        port.onMessage.addListener(function (message) {
+            console.log('Message from external source:', message);
+            // Optionally respond
+            // port.postMessage({ response: 'Message received' });
+        });
+    }
+});
+
+  

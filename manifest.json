@@ -8,6 +8,10 @@
         "default_popup": "index.html",
         "default_title": "My ToDo List"
     },
+    "externally_connectable": {
+      "matches": ["http://127.0.0.1/*", "http://localhost/*"]
+    }
+    ,
     "permissions": [
         "storage",
         "notifications",

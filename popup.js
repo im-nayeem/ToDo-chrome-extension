@@ -1,3 +1,5 @@
+import { getTimeStamp } from "./helpers/TimeStampHelper.js";
+
 const modal = document.getElementById('modal');
 const closeBtn = document.getElementById('close-btn');
 const updateTaskBtn = document.getElementById('update-task-btn');
@@ -10,27 +12,13 @@ const updateTodoEvent = new Event("updateTodo");
 let shouldBackup = false;
 // Copyright (c) 2023 Nayeem Hossain
 
-taskList = []; 
+let taskList = []; 
     // array to store all task object containing task,timestamp and isDone
-updateTime = 0;
+let updateTime = 0;
 
+// hello();
 /**================= Functions ====================== */
 
-const getTimeStamp = () => {
-    const currentDate = new Date();
-    const currentTime = currentDate.toLocaleString('en-BD', {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    });
-    const formattedDate = currentDate.toLocaleDateString('en-BD', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric'
-    });
-    const formattedTimeStamp = `${formattedDate} | ${currentTime}`;
-    return formattedTimeStamp;
-  }
   
 const swap = (i, j) => {
     if(i<0 || j<0)
@@ -117,11 +105,11 @@ const loadView = () => {
         updatedTimeStamp.setAttribute("class", Element.isDone ? "timestamp done" : "timestamp");
         updatedTimeStamp.innerText = (Element.updatedAt == null) ? "" : ("[Updated: " + Element.updatedAt + "]");
 
-        //controller button group
+        // controller button group
         const controllerBtns = document.createElement("span");
         controllerBtns.setAttribute("class", "controller-btn");
         
-        //button to mark done or to undo task 
+        // button to mark done or to undo task 
         const doneBtn = document.createElement('button');
         doneBtn.className = 'done-btn';
         doneBtn.textContent = Element.isDone ? "Undo" : "Done";
@@ -134,7 +122,7 @@ const loadView = () => {
         })
         controllerBtns.appendChild(doneBtn);
 
-        //move up button
+        // move up button
         const moveUpBtn = document.createElement('button');
         moveUpBtn.className = 'move-up-btn';
         moveUpBtn.textContent = '↑';
@@ -151,7 +139,7 @@ const loadView = () => {
         });
         controllerBtns.appendChild(moveUpBtn);
 
-        //move down button
+        // move down button
         const moveDownBtn = document.createElement('button');
         moveDownBtn.className = 'move-down-btn';
         moveDownBtn.textContent = '↓';
@@ -168,7 +156,7 @@ const loadView = () => {
         });
         controllerBtns.appendChild(moveDownBtn);
 
-        //button for editing task
+        // button for editing task
         const editTaskBtn = document.createElement('button');
         editTaskBtn.className = 'edit-task-btn';
         editTaskBtn.textContent = 'Edit';
@@ -189,7 +177,7 @@ const loadView = () => {
         })
         controllerBtns.appendChild(editTaskBtn);
 
-        //button for deleting task
+        // button for deleting task
         const delTaskBtn = document.createElement('button');
         delTaskBtn.className = 'del-task-btn';
         delTaskBtn.textContent = 'Delete';
@@ -304,7 +292,7 @@ const addNewTask = (priority, task, labels, isDone) => {
 const emitTodoLoadEvent = (data) => {
     if(data == undefined)
     {
-        console.log("data not found to emit todoLoadEvent");
+        console.log(">>>> No data found to emit todoLoadEvent");
         return;
     }
     console.log(data);
