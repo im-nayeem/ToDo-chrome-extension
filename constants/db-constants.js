@@ -1,8 +1,10 @@
 const DATABASE_VERSION = 1;
 const DATABASE_NAME = 'TodoDB';
+
 const ObjectStoreName = { 
     TODO: 'todos', 
-    USER: 'user'
+    USER: 'user',
+    METADATA: 'metaData'
 }; 
 
 const OperationMode = {

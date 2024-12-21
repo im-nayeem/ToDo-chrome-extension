@@ -1,85 +1,119 @@
 import { NotificationType } from "../constants.js";
 import { ObjectStoreName, OperationMode } from "../constants/db-constants.js";
+import { METADATA_ID, TodoConstants } from "../constants/todo-constants.js";
 import { getObjectStore } from "../database-context/db-context.js";
 import { notify, baseUrl, isInternetConnected } from "../utils.js";
 
-// Step 1: Open IndexedDB
-const openDB = () => {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('TodoDB', 1);
 
-    request.onerror = (event) => {
-      console.error("Database error:", event.target.error);
-      reject(event.target.error);
-    };
-
-    request.onsuccess = (event) => {
-      console.log("Database opened successfully.");
-      resolve(event.target.result);
-    };
-
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('todos')) {
-        db.createObjectStore('todos', { keyPath: 'id', autoIncrement: true });
-      }
-      if (!db.objectStoreNames.contains('user')) {
-        db.createObjectStore('user', { keyPath: 'id', autoIncrement: true });
-      }
-      console.log("Database setup complete.");
-    };
-  });
-};
-
-// Step 2: Store data in IndexedDB
-const storeDataInDB = (storeName, data) => {
+const storeToDo = (todo) => {
   return new Promise(async (resolve, reject) => {
-    const store = await getObjectStore(OperationMode.READWRITE, storeName);
-    const request = store.put(data);
-
+    const store = await getObjectStore(OperationMode.READWRITE, ObjectStoreName.TODO);
+    const request = store.put(todo);
     request.onsuccess = () => {
-      console.log(`${storeName} stored successfully.`);
+      console.log(`${ObjectStoreName.TODO} stored successfully.`);
       resolve();
     };
-
     request.onerror = (event) => {
-      console.error(`Error storing ${storeName}:`, event.target.error);
+      console.error(`Error storing ${ObjectStoreName.TODO}:`, event.target.error);
       reject(event.target.error);
     };
   });
-};
+}
 
-// Step 3: Retrieve data from IndexedDB
-const getDataFromDB = (storeName, key) => {
+const storeMetaData = (metaData) => {
   return new Promise(async (resolve, reject) => {
-    const store = await getObjectStore(OperationMode.READ, storeName);
-    const request = store.get(key);
+    const store = await getObjectStore(OperationMode.READWRITE, ObjectStoreName.METADATA);
+    const request = store.put(metaData);
+    request.onsuccess = () => {
+      console.log(`${ObjectStoreName.METADATA} stored successfully.`);
+      resolve();
+    };
+    request.onerror = (event) => {
+      console.error(`Error storing ${ObjectStoreName.METADATA}:`, event.target.error);
+      reject(event.target.error);
+    };
+  });
+}
+
+const getMetaData = () => {
+  return new Promise(async (resolve, reject) => {
+    const objectStore = await getObjectStore(OperationMode.READ, ObjectStoreName.METADATA);
+    const request = objectStore.get(METADATA_ID);
+    request.onsuccess = (event) => {
+      console.log(`MetaData retrieved from ${ObjectStoreName.METADATA} successfully.`);
+      resolve(event.target.result);
+    };  
+    request.onerror = (event) => {
+      console.error(`Error retrieving from ${ObjectStoreName.METADATA}:`, event.target.error);
+      reject(event.target.error);
+    };
+  });
+}
+
+const getAllToDo = () => {
+  const todos = [];
+  return new Promise(async (resolve, reject) => {
+    const objectStore = await getObjectStore(OperationMode.READ, storeName);
+    const request = objectStore.openCursor();
+    request.onsuccess = (event) => {
+      if (cursor) {
+        todos.push(cursor.value); 
+        cursor.continue();
+      } else {
+        console.log(`ToDo list retrieved from ${storeName} successfully.`);
+        resolve(todos);
+      }
+    };
+    request.onerror = (event) => {
+        console.error(`Error retrieving ${storeName}:`, event.target.error);
+        reject(event.target.error);
+    };
+  });
+}
+
+// Retrieve data from IndexedDB
+const getTodoById = (id) => {
+  return new Promise(async (resolve, reject) => {
+    const objectStore = await getObjectStore(OperationMode.READ, ObjectStoreName.TODO);
+    const index = objectStore.index(`${TodoConstants.ID}Index`);
+    const request = index.get(id);
 
     request.onsuccess = (event) => {
-      console.log(`${storeName} retrieved successfully.`);
-      resolve(event.target.result);
+        console.log(`${TodoConstants.ID} = ${fieldValue} retrieved from ${storeName} successfully.`);
+        resolve(event.target.result);
     };
-
     request.onerror = (event) => {
-      console.error(`Error retrieving ${storeName}:`, event.target.error);
-      reject(event.target.error);
+        console.error(`Error retrieving ${storeName}:`, event.target.error);
+        reject(event.target.error);
     };
   });
 };
 
-// Step 4: Clear IndexedDB
+const getTodoByFieldKey = (fieldKey, fieldValue) => {
+    return new Promise(async (resolve, reject) => {
+        const objectStore = await getObjectStore(OperationMode.READ, ObjectStoreName.TODO);
+        const index = objectStore.index(`${fieldName}Index`);
+        const request = index.getAll(fieldValue);
+    
+        request.onsuccess = (event) => {
+          console.log(`${fieldKey} = ${fieldValue} retrieved from ${ObjectStoreName.TODO} successfully.`);
+          resolve(event.target.result);
+        };  
+        request.onerror = (event) => {
+          console.error(`Error retrieving from ${ObjectStoreName.TODO}:`, event.target.error);
+          reject(event.target.error);
+        };
+      });
+}
+
 const clearDataInDB = (storeName) => {
   return new Promise(async (resolve, reject) => {
-    const db = await openDB();
-    const transaction = db.transaction([storeName], "readwrite");
-    const store = transaction.objectStore(storeName);
+    const store = await getObjectStore(OperationMode.READWRITE, storeName);
     const request = store.clear();
-
     request.onsuccess = () => {
       console.log(`${storeName} cleared successfully.`);
       resolve();
     };
-
     request.onerror = (event) => {
       console.error(`Error clearing ${storeName}:`, event.target.error);
       reject(event.target.error);
@@ -88,16 +122,18 @@ const clearDataInDB = (storeName) => {
 };
 
 // Store To-do in IndexedDB (retaining the original function name)
-const storeToDoInLocalStorage = async (taskList, updateTime) => {
-  await storeDataInDB('todos', { id: 1, todo: taskList, updateTime: updateTime });
+const storeDataInLocalStorage = async (todo, metaData) => {
+  await storeToDo(todo);
+  await storeMetaData(metaData);
 };
 
 // Get To-do from IndexedDB (retaining the original function name)
 const getToDoFromLocalStorage = async () => {
   try {
-    const result = await getDataFromDB(ObjectStoreName.TODO, 1);
+    const todos = await getAllToDo();
+    const metaData = await getMetaData();
     return {
-      todo: result?.todo || [],
+      todo: todos ? todo : [],
       updateTime: result?.updateTime || 0,
     };
   } catch (error) {
@@ -111,12 +147,12 @@ const getToDoFromLocalStorage = async () => {
 
 // Store User Info in IndexedDB
 const storeUserInfoInIndexedDB = async (user) => {
-  await storeDataInDB('user', { id: 1, user });
+  await storeDataInIndDB('user', { id: 1, user });
 };
 
 // Get User Info from IndexedDB
 const getUserInfoFromIndexedDB = async () => {
-  return await getDataFromDB('user', 1);
+  return await getTodoById('user', 1);
 };
 
 // Clear data in IndexedDB
@@ -158,7 +194,7 @@ const syncTodo = async (taskList, updateTime, emitEvent) => {
             taskList = data.result.todo;
             updateTime = data.result.updateTime;
             emitEvent({ taskList, updateTime });
-            await storeToDoInLocalStorage(taskList, updateTime);
+            await storeDataInLocalStorage(taskList, updateTime);
             console.log("Storing in IndexedDB. Syncing with cloud...");
           } else if (data.result == null || data.result.updateTime < updateTime) {
             storeTodoInCloud(taskList, updateTime);
@@ -199,7 +235,7 @@ const storeTodoInCloud = async (taskList, updateTime) => {
 };
 
 export {
-  storeToDoInLocalStorage,
+  storeDataInLocalStorage as storeToDoInLocalStorage,
   getToDoFromLocalStorage,
   storeTodoInCloud,
   syncTodo
