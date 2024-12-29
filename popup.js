@@ -1,5 +1,7 @@
 import { getTimeStamp } from "./helpers/time-stamp-helper.js";
 import { swap } from "./helpers/array-helper.js";
+import { emitTodoLoadEvent, emitUpdateTodoEvent } from "./events/even-emitters.js";
+// import { EventConstants } from "./constants/event-constants.js";
 
 const modal = document.getElementById('modal');
 const closeBtn = document.getElementById('close-btn');
@@ -7,9 +9,6 @@ const updateTaskBtn = document.getElementById('update-task-btn');
 const addTaskBtn = document.getElementById('add-task-btn');
 const addToDoFormBtn = document.getElementById('add-todo-btn');
 
-// events
-const todoLoadEvent = new Event("loadTodo");
-const updateTodoEvent = new Event("updateTodo");
 let shouldBackup = false;
 // Copyright (c) 2023 Nayeem Hossain
 
@@ -35,7 +34,7 @@ const loadView = () => {
     //sort according to isDone(if done then come first)
     taskList.sort( (a, b) => {
         return (a.isDone - b.isDone);
-    })
+    });
 
     taskList.forEach((Element,index) => {
 
@@ -109,7 +108,7 @@ const loadView = () => {
             taskList[index].isDone = !taskList[index].isDone;
             taskList[index].completionTime = getTimeStamp();
             updateTime = Date.now();
-            emitUpdateTodoEvent();
+            emitUpdateTodoEvent(shouldBackup);
         })
         controllerBtns.appendChild(doneBtn);
 
@@ -126,7 +125,7 @@ const loadView = () => {
 
             swap(taskList, index,index-1);
             updateTime = Date.now();
-            emitUpdateTodoEvent();
+            emitUpdateTodoEvent(shouldBackup);
         });
         controllerBtns.appendChild(moveUpBtn);
 
@@ -143,7 +142,7 @@ const loadView = () => {
 
             swap(taskList, index,index+1);
             updateTime = Date.now();
-            emitUpdateTodoEvent();
+            emitUpdateTodoEvent(shouldBackup);
         });
         controllerBtns.appendChild(moveDownBtn);
 
@@ -180,7 +179,7 @@ const loadView = () => {
             {
                 taskList.splice(index, 1);
                 updateTime = Date.now();
-                emitUpdateTodoEvent();
+                emitUpdateTodoEvent(shouldBackup);
             }
         })
         controllerBtns.appendChild(delTaskBtn);
@@ -225,7 +224,7 @@ const updateCheckbox = (taskIndex, checkBoxIndex, isChecked) => {
     taskList[taskIndex].task = task;
     taskList[taskIndex].updatedAt = getTimeStamp();
     updateTime = Date.now();
-    emitUpdateTodoEvent();
+    emitUpdateTodoEvent(shouldBackup);
 }
 
 
@@ -274,32 +273,12 @@ const addNewTask = (priority, task, labels, isDone) => {
         taskList.unshift( {task, isDone, labels, timeStamp} );
 
     updateTime = Date.now();
-    emitUpdateTodoEvent();
+    emitUpdateTodoEvent(shouldBackup);
 }
 
 /**--------Event Emitter----------- */
 
-// emit event to load the view
-const emitTodoLoadEvent = (data) => {
-    if(data == undefined)
-    {
-        console.log(">>>> No data found to emit todoLoadEvent");
-        return;
-    }
-    console.log(data);
-    taskList = data.taskList;
-    updateTime = data.updateTime;
-    document.dispatchEvent(todoLoadEvent);
-}
 
-// emit event to update todo (used only in popup.js)
-const emitUpdateTodoEvent = () => {
-    if(!shouldBackup) {
-        chrome.runtime.connect({ name: "backup" });
-        shouldBackup = true;
-    }
-    document.dispatchEvent(updateTodoEvent);
-}
 
 // emit event to sync todo with cloud
 const syncTodo = async() => {
@@ -328,7 +307,7 @@ updateTaskBtn.addEventListener("click", (event) => {
         taskList[ind].task = updatedTask;
         taskList[ind].updatedAt = getTimeStamp();
         updateTime = Date.now();
-        emitUpdateTodoEvent();
+        emitUpdateTodoEvent(shouldBackup);
     }
     modal.style.display = 'none';
 })
@@ -352,14 +331,14 @@ addTaskBtn.addEventListener("click", (event) => {
         alert("Priority must be selected!");
     }
 
-})
+});
 
 
-document.addEventListener("loadTodo", (event) => {
+document.addEventListener('LoadTodo', (event) => {
     loadView();
 });
 
-document.addEventListener("updateTodo", (event) => {
+document.addEventListener('updateTodo', (event) => {
     chrome.runtime.sendMessage({ 
         action: 'updateTodo', 
         taskList: taskList, updateTime: updateTime 

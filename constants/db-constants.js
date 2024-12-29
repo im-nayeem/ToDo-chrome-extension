@@ -10,7 +10,7 @@ const ObjectStoreName = {
 const OperationMode = {
     READ: 'readonly',
     READWRITE: 'readwrite'
-}
+};
 
 export { 
     DATABASE_NAME, 
