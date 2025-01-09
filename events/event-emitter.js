@@ -1,9 +1,3 @@
-import { 
-    todoLoadEvent, 
-    updateTodoEvent 
-} from "./todo-events.js";
-
-
 // emit event to load the view
 const emitTodoLoadEvent = (data) => {
     if(data == undefined)
@@ -18,16 +12,10 @@ const emitTodoLoadEvent = (data) => {
 }
 
 // emit event to update todo (used only in popup.js)
-const emitUpdateTodoEvent = (shouldBackup) => {
-    if(!shouldBackup) {
+const emitUpdateTodoEvent = () => {
+    if(!AppState. shouldBackup) {
         chrome.runtime.connect({ name: "backup" });
         shouldBackup = true;
     }
     document.dispatchEvent(updateTodoEvent);
-}
-
-
-export {
-    emitTodoLoadEvent,
-    emitUpdateTodoEvent
 }

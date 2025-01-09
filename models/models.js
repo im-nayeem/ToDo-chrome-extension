@@ -1,5 +1,5 @@
-export class TaskModel {
-    constructor(id, index, task, isDone, labels, completionTime, updatedAt) {
+export class Task {
+    constructor(id, index, task, isDone, labels, completionTime, updatedAt, author) {
         this.id = id;
         this.index = index;
         this.task = task;
@@ -7,10 +7,11 @@ export class TaskModel {
         this.labels = labels;
         this.completionTime = completionTime;
         this.updatedAt = updatedAt;
+        this.author = author;
     }
 }
 
-export class UserModel {
+export class User {
     constructor(id, email, name) {
         this.id = id;
         this.email = email;

@@ -1,7 +1,8 @@
 import { getTimeStamp } from "./helpers/time-stamp-helper.js";
 import { swap } from "./helpers/array-helper.js";
-import { emitTodoLoadEvent, emitUpdateTodoEvent } from "./events/even-emitters.js";
-// import { EventConstants } from "./constants/event-constants.js";
+import { todoLoadEvent, updateTodoEvent } from "./events/todo-events.js";
+import { EventConstants } from "./constants/event-constants.js";
+import { AppStore } from "./store/app-store.js";
 
 const modal = document.getElementById('modal');
 const closeBtn = document.getElementById('close-btn');
@@ -12,10 +13,11 @@ const addToDoFormBtn = document.getElementById('add-todo-btn');
 let shouldBackup = false;
 // Copyright (c) 2023 Nayeem Hossain
 
+let appStore = AppStore.getInstance();
+
 let taskList = []; 
     // array to store all task object containing task,timestamp and isDone
 let updateTime = 0;
-
 
 /**================= Functions ====================== */
 
@@ -104,12 +106,12 @@ const loadView = () => {
         doneBtn.className = 'done-btn';
         doneBtn.textContent = Element.isDone ? "Undo" : "Done";
 
-        doneBtn.addEventListener("click",() => {
+        doneBtn.addEventListener("click", () => {
             taskList[index].isDone = !taskList[index].isDone;
             taskList[index].completionTime = getTimeStamp();
             updateTime = Date.now();
             emitUpdateTodoEvent(shouldBackup);
-        })
+        });
         controllerBtns.appendChild(doneBtn);
 
         // move up button
@@ -122,7 +124,6 @@ const loadView = () => {
                 alert("The task is completed. Completed task cannot be moved!");
                 return;
             }
-
             swap(taskList, index,index-1);
             updateTime = Date.now();
             emitUpdateTodoEvent(shouldBackup);
@@ -139,7 +140,6 @@ const loadView = () => {
                 alert("The task is completed. Completed task cannot be moved!");
                 return;
             }
-
             swap(taskList, index,index+1);
             updateTime = Date.now();
             emitUpdateTodoEvent(shouldBackup);
@@ -151,7 +151,7 @@ const loadView = () => {
         editTaskBtn.className = 'edit-task-btn';
         editTaskBtn.textContent = 'Edit';
         
-        editTaskBtn.addEventListener("click",() => {
+        editTaskBtn.addEventListener("click", () => {
            
             if(taskList[index].isDone)
             {
@@ -164,7 +164,7 @@ const loadView = () => {
             document.getElementById('task-input-updated').value = Element.task;
             document.getElementById('hidden-index-updated').value = index;
         
-        })
+        });
         controllerBtns.appendChild(editTaskBtn);
 
         // button for deleting task
@@ -310,7 +310,7 @@ updateTaskBtn.addEventListener("click", (event) => {
         emitUpdateTodoEvent(shouldBackup);
     }
     modal.style.display = 'none';
-})
+});
 
 
 // button to add high priority task
@@ -333,12 +333,34 @@ addTaskBtn.addEventListener("click", (event) => {
 
 });
 
+// emit event to load the view
+const emitTodoLoadEvent = (data) => {
+    if(data == undefined)
+    {
+        console.log(">>>> No data found to emit todoLoadEvent");
+        return;
+    }
+    console.log(data);
+    taskList = data.taskList;
+    updateTime = data.updateTime;
+    document.dispatchEvent(todoLoadEvent);
+}
 
-document.addEventListener('LoadTodo', (event) => {
+// emit event to update todo (used only in popup.js)
+const emitUpdateTodoEvent = () => {
+    if(!shouldBackup) {
+        chrome.runtime.connect({ name: "backup" });
+        shouldBackup = true;
+    }
+    document.dispatchEvent(updateTodoEvent);
+}
+
+
+document.addEventListener(EventConstants.LOAD_TODO, (event) => {
     loadView();
 });
 
-document.addEventListener('updateTodo', (event) => {
+document.addEventListener(EventConstants.UPDATE_TODO, (event) => {
     chrome.runtime.sendMessage({ 
         action: 'updateTodo', 
         taskList: taskList, updateTime: updateTime 
@@ -352,5 +374,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }, emitTodoLoadEvent); 
     syncTodo();
 });
+
+(() => {
+    console.log("Initializing...");
+    appStore.actionHandlers['loadTodo'] = loadView.bind(this);
+})();
 
 /**------------------------------------------ */
