@@ -380,4 +380,4 @@ document.addEventListener("DOMContentLoaded", () => {
     appStore.actionHandlers['loadTodo'] = loadView.bind(this);
 })();
 
-/**------------------------------------------ */
+/* ------------------------------------------ */

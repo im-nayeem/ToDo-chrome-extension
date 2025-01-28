@@ -1,4 +1,7 @@
-// emit event to load the view
+import { AppStore } from "../store/app-store.js";
+import { todoLoadEvent, updateTodoEvent } from "./todo-events.js";
+
+
 const emitTodoLoadEvent = (data) => {
     if(data == undefined)
     {
@@ -6,16 +9,22 @@ const emitTodoLoadEvent = (data) => {
         return;
     }
     console.log(data);
-    taskList = data.taskList;
-    updateTime = data.updateTime;
-    document.dispatchEvent(todoLoadEvent);
+    const appStore = AppStore.getInstance();
+    console.log(">>>> Emitting todoLoadEvent");
+    console.log(appStore);
+    appStore.taskList =  [...data.taskList];
+    appStore.updateTime = Date.now();
+    document.dispatchEvent(todoLoadEvent)
 }
 
-// emit event to update todo (used only in popup.js)
 const emitUpdateTodoEvent = () => {
-    if(!AppState. shouldBackup) {
+    const appStore = AppStore.getInstance();
+    if(!appStore.shouldBackup) {
         chrome.runtime.connect({ name: "backup" });
         shouldBackup = true;
     }
     document.dispatchEvent(updateTodoEvent);
 }
+
+
+export { emitTodoLoadEvent, emitUpdateTodoEvent };

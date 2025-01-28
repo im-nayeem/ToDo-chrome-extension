@@ -1,9 +1,9 @@
-export class AppStore {
+class Store {
     static #instance; 
 
     constructor(shouldBackup = false, taskList = [], user = null, metaData = null, actionHandlers = {}) {
-        if (AppState.#instance) {
-            return AppState.#instance;
+        if (Store.#instance) {
+            return Store.#instance;
         }
 
         this.shouldBackup = shouldBackup; 
@@ -11,13 +11,23 @@ export class AppStore {
         this.user = user;
         this.metaData = metaData;
         this.actionHandlers = actionHandlers;
-        AppState.#instance = this; 
+        Store.#instance = this; 
     }
 
     static getInstance(shouldBackup = false, taskList = [], user = null, metaData = null, actionHandlers = {}) {
-        if (!AppState.#instance) {
-            AppState.#instance = new AppState(shouldBackup, taskList, user, metaData, actionHandlers);
+        if (!Store.#instance) {
+            Store.#instance = new Store(shouldBackup, taskList, user, metaData, actionHandlers);
         }
-        return AppState.#instance;
+        console.log(">>>> AppState instance created");
+        console.log(Store.#instance);
+        return Store.#instance;
     }
 }
+const store = Store.getInstance();
+class AppStore {
+    static getInstance() {
+        return store;
+    }
+} 
+
+export { AppStore };
