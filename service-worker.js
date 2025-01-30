@@ -4,35 +4,35 @@
     syncTodo, storeTodoInCloud 
   } from "./repository/todo-repository.js";
 
- chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
+ chrome.runtime.onMessage.addListener((message, sender, callBack) => {
     if (message.action === 'syncTodo') {
       getToDoFromLocalStorage().then( (data) => {
-         syncTodo(data.todo, data.updateTime, emitEvent);
+         syncTodo(data.todo, data.updateTime, callBack);
       });
       return true;
     }
   });
 
-  chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
+  chrome.runtime.onMessage.addListener((message, sender, callBack) => {
     if (message.action === 'updateTodo') {
       storeToDoInLocalStorage(message.taskList, message.updateTime).then( () => {
-        emitEvent({taskList: message.taskList, updateTime: message.updateTime});
+        callBack({taskList: message.taskList, updateTime: message.updateTime});
       });
       return true;
     }
   });
 
-  chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
+  chrome.runtime.onMessage.addListener((message, sender, callBack) => {
     if (message.action === 'loadData') {
      getToDoFromLocalStorage().then((data) => {
-        emitEvent({taskList: data.todo, updateTime: data.updateTime});
+        callBack({taskList: data.todo, updateTime: data.updateTime});
       });
       return true;
     }
   });
 
 
-  chrome.runtime.onMessage.addListener((message, sender, emitEvent) => {
+  chrome.runtime.onMessage.addListener((message, sender, callBack) => {
     if (message.action === 'loadByLabel') {
      getToDoFromLocalStorage().then((data) => {
         const todos = data.todo;
@@ -51,7 +51,7 @@
                 }
             }
         });
-        emitEvent({taskList: filteredTodos, updateTime: data.updateTime});
+        callBack({taskList: filteredTodos, updateTime: data.updateTime});
       });
       return true;
     }

@@ -1,7 +1,6 @@
 import { AppStore } from "../store/app-store.js";
 import { todoLoadEvent, updateTodoEvent } from "./todo-events.js";
 
-
 const emitTodoLoadEvent = (data) => {
     const appStore = AppStore.getInstance();
     if(data != undefined)

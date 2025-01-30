@@ -1,10 +1,11 @@
 import { AppStore } from "./store/app-store.js";
 import {
     DomHandler
-} from "./events/dom-handler.js";
+} from "./events/dom-event-handler.js";
 import { emitTodoLoadEvent, emitUpdateTodoEvent } from "./events/event-emitter.js";
 import { EventHandler } from "./events/event-handler.js";
 import { getTimeStamp } from "./helpers/time-stamp-helper.js";
+import { swap, swapTask } from "./helpers/array-helper.js";
 
 class App {
     #appStore = null;
@@ -32,29 +33,35 @@ class App {
             taskListDiv.removeChild(child);
             child = taskListDiv.lastChild;
         }
-        // sort according to isDone (if done then come first)
-        this.taskList.sort( (a, b) => {
-            return (a.isDone - b.isDone);
+        // sort according to isDone(if done then come first) and then according to index
+        taskList.sort((a, b) => {
+            if (a.isDone !== b.isDone) {
+                return a.isDone - b.isDone; 
+            }
+            return a.index - b.index; 
         });
     
-        this.taskList.forEach((Element,index) => {
+        this.taskList.forEach((Element, index) => {
     
             const taskBox = document.createElement("div");
             taskBox.setAttribute("class", Element.isDone ? "task-box done" : "task-box");
     
             // the task text
             const taskText = document.createElement("div");
-            taskText.setAttribute("class" , "task");
+            taskText.setAttribute("class", "task");
     
             // remove html tags 
             const textWithoutTags = Element.task.replace(/<[^>]+>/g, "");
             
-            // replace **text** with <strong>text</strong>
-            const replacedText = textWithoutTags.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\[x\]/gi, `<input type='checkbox' checked>`).replace(/\[\]/g, `<input type='checkbox'>`);;
+            // replace markup tags with html tags
+            const replacedText = textWithoutTags
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\[x\]/gi, `<input type='checkbox' checked>`)
+            .replace(/\[\]/g, `<input type='checkbox'>`);;
             
-            // replace links with <a>link</a> 
+            // replace links with <a>{link}</a> 
             const task = replacedText.replace(/(https?:\/\/\S+)/gi, '<a href="$1" target="__blank">$1</a>');
-            taskText.innerHTML = "<strong>" + (index+1) + "</strong>" + ". " + task;
+            taskText.innerHTML = "<strong>" + (index + 1) + "</strong>" + ". " + task;
             taskBox.appendChild(taskText);
     
             const checkBoxes = taskText.querySelectorAll("input[type='checkbox']");
@@ -109,7 +116,7 @@ class App {
                 this.taskList[index].isDone = !taskList[index].isDone;
                 this.taskList[index].completionTime = getTimeStamp();
                 updateTime = Date.now();
-                emitUpdateTodoEvent(shouldBackup);
+                emitUpdateTodoEvent();
             });
             controllerBtns.appendChild(doneBtn);
     
@@ -123,9 +130,9 @@ class App {
                     alert("The task is completed. Completed task cannot be moved!");
                     return;
                 }
-                swap(this.taskList, index,index-1);
+                swapTask(this.taskList, index, index-1);
                 updateTime = Date.now();
-                emitUpdateTodoEvent(shouldBackup);
+                emitUpdateTodoEvent();
             });
             controllerBtns.appendChild(moveUpBtn);
     
@@ -139,9 +146,9 @@ class App {
                     alert("The task is completed. Completed task cannot be moved!");
                     return;
                 }
-                swap(this.taskList, index,index+1);
+                swapTask(this.taskList, index, index+1);
                 updateTime = Date.now();
-                emitUpdateTodoEvent(shouldBackup);
+                emitUpdateTodoEvent();
             });
             controllerBtns.appendChild(moveDownBtn);
     
@@ -151,18 +158,15 @@ class App {
             editTaskBtn.textContent = 'Edit';
             
             editTaskBtn.addEventListener("click", () => {
-               
                 if(this.taskList[index].isDone)
                 {
                     alert("The task is completed. Completed task cannot be updated!");
                     return;
                 }
-    
                 modal.style.display = 'block';
                 modal.scrollIntoView();
                 document.getElementById('task-input-updated').value = Element.task;
                 document.getElementById('hidden-index-updated').value = index;
-            
             });
             controllerBtns.appendChild(editTaskBtn);
     
@@ -178,7 +182,7 @@ class App {
                 {
                     this.taskList.splice(index, 1);
                     updateTime = Date.now();
-                    emitUpdateTodoEvent(shouldBackup);
+                    emitUpdateTodoEvent();
                 }
             })
             controllerBtns.appendChild(delTaskBtn);
@@ -222,52 +226,38 @@ class App {
         this.taskList[taskIndex].task = task;
         this.taskList[taskIndex].updatedAt = getTimeStamp();
         updateTime = Date.now();
-        emitUpdateTodoEvent(shouldBackup);
+        emitUpdateTodoEvent();
     }
 
     /**
      * function to Add New Task in todo list
      * @param {String} priority the priority of the task
      * @param {String} task the task to be listed in todo list
-     * @param {Boolean} isDone indicating if the task is done or undone
      * @returns if task is null
      */
-    addNewTask(priority, task, labels, isDone) {
-    
+    addNewTask(priority, task) {
         if(task === null || task.trim() === "")
         {
             alert("Task field is empty!");
             return;
         }
-    
-        let timeStamp = getTimeStamp();
-    
-        if(priority === 'low')
-            this.taskList.push( {task, isDone, labels, timeStamp} );
-        else
-        {
-            this.taskList.unshift( {task, isDone, labels, timeStamp} );
-            console.log(this.#appStore.taskList);
-        }
-        console.log(this.taskList === this.#appStore.taskList);
-    
-        // updateTime = Date.now();
+        (priority === 'low') ? this.taskList.push(task) : this.taskList.unshift(task);
         emitUpdateTodoEvent();
     }
 }
 
 (() => {
+
     console.log(">>>> App started");
+
     const app = new App();
     app.init();
     const domEventListener = new DomHandler();
     domEventListener.attachDomEventListeners();
     EventHandler.registerEventListeners();
 
-
-
     document.addEventListener("DOMContentLoaded", () => {
-        console.log("DOM content loaded...");
+        console.log(">>>> DOM content loaded...");
         chrome.runtime.sendMessage({ 
             action: 'loadData'
         }, emitTodoLoadEvent); 

@@ -1,4 +1,9 @@
+import { uuidv4 } from '../helpers/guid-helper.js';
+import { getTimeStamp } from '../helpers/time-stamp-helper.js';
+import { Task } from '../models/models.js';
 import { AppStore } from '../store/app-store.js';
+
+
 export class DomHandler {
     #appStore = null;
 
@@ -79,7 +84,7 @@ export class DomHandler {
     }
 
     onAddTaskButtonClicked(event) {
-        const task = document.getElementById('task-input').value;
+        const taskText = document.getElementById('task-input').value;
         const labels = document.getElementById('labelsInput').value.trim();
         const checkedRadio = document.querySelector('input[name="priority"]:checked');
         if (checkedRadio) {
@@ -88,14 +93,10 @@ export class DomHandler {
             document.getElementById('labelsInput').value = "";
             checkedRadio.checked = false;
             this.toggleToDoForm();
-            this.#appStore.actionHandlers['AddNewTask'](priority, task, labels, false);
+            const task = new Task(uuidv4(), this.taskList.length, taskText, false, labels, null, getTimeStamp());
+            this.#appStore.actionHandlers['AddNewTask'](priority, task);
         } else {
             alert("Priority must be selected!");
         }
-    }
-
-    // Example timestamp method
-    getTimeStamp() {
-        return new Date().toISOString();
     }
 }

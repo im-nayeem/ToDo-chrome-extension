@@ -18,3 +18,7 @@ export class EventHandler {
         });
     }
 }
+
+export class EventListener {
+    static 
+}

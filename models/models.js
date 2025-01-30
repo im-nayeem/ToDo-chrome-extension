@@ -1,5 +1,5 @@
 export class Task {
-    constructor(id, index, task, isDone, labels, completionTime, updatedAt, author) {
+    constructor(id, index, task, isDone, labels, completionTime, updatedAt) {
         this.id = id;
         this.index = index;
         this.task = task;
@@ -7,7 +7,6 @@ export class Task {
         this.labels = labels;
         this.completionTime = completionTime;
         this.updatedAt = updatedAt;
-        this.author = author;
     }
 }
 

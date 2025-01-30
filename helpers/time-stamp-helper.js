@@ -13,3 +13,18 @@ export const getTimeStamp = () => {
     const formattedTimeStamp = `${formattedDate} | ${currentTime}`;
     return formattedTimeStamp;
   }
+
+const getTimeStampFromMills = (timestamp) => {
+    const currentDate = new Date(timestamp);
+    const currentTime = currentDate.toLocaleString('en-BD', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    });
+    const formattedDate = currentDate.toLocaleDateString('en-BD', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+    return `${formattedDate} | ${currentTime}`;
+};
