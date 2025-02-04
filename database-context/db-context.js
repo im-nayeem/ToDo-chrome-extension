@@ -8,12 +8,14 @@ import { TodoConstants } from "../constants/todo-constants.js";
 const dbContext = {};
 
 const openDB = async () => {
-    if(dbContext.Instance) {
-      return dbContext.Instance;
-    }
     return new Promise( (resolve, reject) => {
+
+      if(dbContext.Instance) {
+        resolve(dbContext.Instance);
+      }
+
       const request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION);
-  
+
       request.onerror = (event) => {
         console.error("Database error:", event.target.error);
         reject(event.target.error);
@@ -29,7 +31,6 @@ const openDB = async () => {
         const db = event.target.result;
         if (!db.objectStoreNames.contains(ObjectStoreName.TODO)) {
           const toDoObjectStore = db.createObjectStore(ObjectStoreName.TODO, { keyPath: 'id', autoIncrement: true });
-          toDoObjectStore.createIndex(`${TodoConstants.INDEX}Index`, TodoConstants.INDEX, { unique: true });
           toDoObjectStore.createIndex(`${TodoConstants.ID}Index`, TodoConstants.ID, { unique: true });
 
         }

@@ -1,4 +1,4 @@
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 const DATABASE_NAME = 'TodoDB';
 
 const ObjectStoreName = { 

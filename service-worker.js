@@ -1,13 +1,13 @@
-  import { 
+import { 
     getToDoFromLocalStorage, 
     storeToDoInLocalStorage, 
     syncTodo, storeTodoInCloud 
-  } from "./repository/todo-repository.js";
+  } from "./repository/repository.js";
 
  chrome.runtime.onMessage.addListener((message, sender, callBack) => {
     if (message.action === 'syncTodo') {
       getToDoFromLocalStorage().then( (data) => {
-         syncTodo(data.todo, data.updateTime, callBack);
+         syncTodo(data.todo, data.metaData, callBack);
       });
       return true;
     }
@@ -15,8 +15,8 @@
 
   chrome.runtime.onMessage.addListener((message, sender, callBack) => {
     if (message.action === 'updateTodo') {
-      storeToDoInLocalStorage(message.taskList, message.updateTime).then( () => {
-        callBack({taskList: message.taskList, updateTime: message.updateTime});
+      storeToDoInLocalStorage(message.taskList, message.metaData).then( () => {
+        callBack({taskList: message.taskList, metaData: message.metaData});
       });
       return true;
     }
@@ -25,7 +25,7 @@
   chrome.runtime.onMessage.addListener((message, sender, callBack) => {
     if (message.action === 'loadData') {
      getToDoFromLocalStorage().then((data) => {
-        callBack({taskList: data.todo, updateTime: data.updateTime});
+        callBack({taskList: data.todo, metaData: data.metaData});
       });
       return true;
     }
@@ -51,7 +51,7 @@
                 }
             }
         });
-        callBack({taskList: filteredTodos, updateTime: data.updateTime});
+        callBack({taskList: filteredTodos, metaData: data.metaData});
       });
       return true;
     }
@@ -61,7 +61,7 @@
       port.onDisconnect.addListener( () => {
         console.log("Popup closed. Starting back-up...");
         getToDoFromLocalStorage().then( (data) => {
-          storeTodoInCloud(data.todo, data.updateTime);
+          storeTodoInCloud(data.todo, data.metaData);
        });
       });
     }

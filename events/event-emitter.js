@@ -1,3 +1,4 @@
+import { uuidv4 } from "../helpers/guid-helper.js";
 import { AppStore } from "../store/app-store.js";
 import { todoLoadEvent, updateTodoEvent } from "./todo-events.js";
 
@@ -19,6 +20,8 @@ const emitUpdateTodoEvent = () => {
         chrome.runtime.connect({ name: "backup" });
         appStore.shouldBackup = true;
     }
+    appStore.metaData.changeSignature = uuidv4();
+    appStore.metaData.timeStamp = Date.now();
     document.dispatchEvent(updateTodoEvent);
 }
 

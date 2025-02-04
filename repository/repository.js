@@ -1,23 +1,19 @@
 import { NotificationType } from "../constants.js";
 import { ObjectStoreName, OperationMode } from "../constants/db-constants.js";
 import { METADATA_ID, TodoConstants } from "../constants/todo-constants.js";
-import { getObjectStore } from "../database-context/db-context.js";
+import { getObjectStore, getTransaction } from "../database-context/db-context.js";
 import { notify, baseUrl, isInternetConnected } from "../utils.js";
 
 
-const storeToDo = (todo) => {
-  return new Promise(async (resolve, reject) => {
+const storeToDo = async (todos) => {
+    const transaction = await getTransaction(OperationMode.READWRITE, ObjectStoreName.TODO);
     const store = await getObjectStore(OperationMode.READWRITE, ObjectStoreName.TODO);
-    const request = store.put(todo);
-    request.onsuccess = () => {
-      console.log(`${ObjectStoreName.TODO} stored successfully.`);
-      resolve();
-    };
-    request.onerror = (event) => {
-      console.error(`Error storing ${ObjectStoreName.TODO}:`, event.target.error);
-      reject(event.target.error);
-    };
-  });
+    await Promise.all(todos.map(todo => store.put(todo)));
+    await transaction.Complete;
+    return new Promise((resolve, reject) => {
+        transaction.oncomplete = () => resolve("Todos saved successfully!");
+        transaction.onerror = () => reject("Failed to save todos!");
+    });
 }
 
 const storeMetaData = (metaData) => {
@@ -53,14 +49,15 @@ const getMetaData = () => {
 const getAllToDo = () => {
   const todos = [];
   return new Promise(async (resolve, reject) => {
-    const objectStore = await getObjectStore(OperationMode.READ, storeName);
+    const objectStore = await getObjectStore(OperationMode.READ, ObjectStoreName.TODO);
     const request = objectStore.openCursor();
     request.onsuccess = (event) => {
+      const cursor = event.target.result;
       if (cursor) {
         todos.push(cursor.value); 
         cursor.continue();
       } else {
-        console.log(`ToDo list retrieved from ${storeName} successfully.`);
+        console.log(`ToDo list retrieved from indexedDB successfully.`);
         resolve(todos);
       }
     };
@@ -122,8 +119,8 @@ const clearDataInDB = (storeName) => {
 };
 
 // Store To-do in IndexedDB (retaining the original function name)
-const storeDataInLocalStorage = async (todo, metaData) => {
-  await storeToDo(todo);
+const storeDataInLocalStorage = async (todos, metaData) => {
+  await storeToDo(todos);
   await storeMetaData(metaData);
 };
 
@@ -133,14 +130,14 @@ const getToDoFromLocalStorage = async () => {
     const todos = await getAllToDo();
     const metaData = await getMetaData();
     return {
-      todo: todos ? todo : [],
-      updateTime: result?.updateTime || 0,
+      todo: todos ? todos : [],
+      metaData: metaData ? metaData : null,
     };
   } catch (error) {
     console.error("Error getting data from IndexedDB:", error);
     return {
       todo: [],
-      updateTime: null,
+      metaData: null,
     };
   }
 };

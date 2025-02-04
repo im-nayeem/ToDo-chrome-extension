@@ -13,12 +13,10 @@ export class EventHandler {
             const appStore = AppStore.getInstance();
             chrome.runtime.sendMessage({ 
                 action: 'updateTodo', 
-                taskList: appStore.taskList, updateTime: Date.now() 
+                taskList: appStore.taskList,
+                metaData: appStore.metaData,
+                user: appStore.user 
             }, emitTodoLoadEvent); 
         });
     }
-}
-
-export class EventListener {
-    static 
 }

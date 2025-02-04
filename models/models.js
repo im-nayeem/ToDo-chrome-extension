@@ -1,12 +1,13 @@
 export class Task {
-    constructor(id, index, task, isDone, labels, completionTime, updatedAt) {
+    constructor(id, index, task, isDone, labels, timeStamp, updatedAt, completionTime) {
         this.id = id;
         this.index = index;
         this.task = task;
         this.isDone = isDone;
         this.labels = labels;
-        this.completionTime = completionTime;
+        this.timeStamp = timeStamp;
         this.updatedAt = updatedAt;
+        this.completionTime = completionTime;
     }
 }
 
@@ -20,6 +21,7 @@ export class User {
 
 export class MetaData {
     constructor(changeSignature, timeStamp) {
+        this.id = 'metadata';
         this.changeSignature = changeSignature;
         this.timeStamp = timeStamp;
     }

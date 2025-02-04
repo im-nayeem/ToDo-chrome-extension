@@ -76,9 +76,7 @@ export class DomHandler {
         if (x == 1) {
             const ind = document.getElementById('hidden-index-updated').value;
             const updatedTask = document.getElementById('task-input-updated').value;
-            this.taskList[ind].task = updatedTask;
-            this.taskList[ind].updatedAt = this.getTimeStamp();
-            this.updateTime = Date.now();
+            this.#appStore.actionHandlers['UpdateTask'](ind, updatedTask);
         }
         this.modal.style.display = 'none';
     }
@@ -93,7 +91,7 @@ export class DomHandler {
             document.getElementById('labelsInput').value = "";
             checkedRadio.checked = false;
             this.toggleToDoForm();
-            const task = new Task(uuidv4(), this.taskList.length, taskText, false, labels, null, getTimeStamp());
+            const task = new Task(uuidv4(), this.taskList.length, taskText, false, labels, Date.now(), null, null);
             this.#appStore.actionHandlers['AddNewTask'](priority, task);
         } else {
             alert("Priority must be selected!");

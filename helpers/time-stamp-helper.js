@@ -14,7 +14,7 @@ export const getTimeStamp = () => {
     return formattedTimeStamp;
   }
 
-const getTimeStampFromMills = (timestamp) => {
+export const getTimeStampFromMills = (timestamp) => {
     const currentDate = new Date(timestamp);
     const currentTime = currentDate.toLocaleString('en-BD', {
         hour: 'numeric',

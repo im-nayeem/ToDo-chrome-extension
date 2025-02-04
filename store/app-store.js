@@ -1,3 +1,5 @@
+import { MetaData } from "../models/models.js";
+
 class Store {
     static #instance; 
 
@@ -5,11 +7,13 @@ class Store {
         if (Store.#instance) {
             return Store.#instance;
         }
-
         this.shouldBackup = shouldBackup; 
         this.taskList = taskList;
         this.user = user;
         this.metaData = metaData;
+        if(this.metaData == null) {
+            this.metaData = new MetaData(null, Date.now());
+        };
         this.actionHandlers = actionHandlers;
         Store.#instance = this; 
     }
